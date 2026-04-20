@@ -6,12 +6,15 @@ import {
   LayoutDashboard,
   Search,
   MessageSquare,
+  MessagesSquare,
   FileText,
   User,
   Leaf,
   Microscope,
   BookOpen,
   Bell,
+  Users,
+  ShieldCheck,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/hooks/useAuth"
@@ -30,6 +33,7 @@ export function AppSidebar() {
     { label: "Dashboard", href: "/farmer/dashboard", icon: <LayoutDashboard className="h-4.5 w-4.5" /> },
     { label: "Disease Detection", href: "/farmer/disease-detection", icon: <Search className="h-4.5 w-4.5" /> },
     { label: "Community", href: "/farmer/community", icon: <MessageSquare className="h-4.5 w-4.5" /> },
+    { label: "Chat", href: "/farmer/chat", icon: <MessagesSquare className="h-4.5 w-4.5" /> },
     { label: "My Posts", href: "/farmer/my-posts", icon: <FileText className="h-4.5 w-4.5" /> },
     { label: "Notifications", href: "/farmer/notifications", icon: <Bell className="h-4.5 w-4.5" /> },
     { label: "Profile", href: "/farmer/profile", icon: <User className="h-4.5 w-4.5" /> },
@@ -39,12 +43,21 @@ export function AppSidebar() {
     { label: "Dashboard", href: "/expert/dashboard", icon: <LayoutDashboard className="h-4.5 w-4.5" /> },
     { label: "Disease Analysis", href: "/expert/disease-analysis", icon: <Microscope className="h-4.5 w-4.5" /> },
     { label: "Community", href: "/expert/community", icon: <MessageSquare className="h-4.5 w-4.5" /> },
+    { label: "Chat", href: "/expert/chat", icon: <MessagesSquare className="h-4.5 w-4.5" /> },
     { label: "Knowledge Posts", href: "/expert/knowledge-posts", icon: <BookOpen className="h-4.5 w-4.5" /> },
     { label: "Notifications", href: "/expert/notifications", icon: <Bell className="h-4.5 w-4.5" /> },
     { label: "Profile", href: "/expert/profile", icon: <User className="h-4.5 w-4.5" /> },
   ]
 
-  const navItems = user?.role === "user" ? farmerNav : expertNav
+  const adminNav: NavItem[] = [
+    { label: "Dashboard", href: "/admin/dashboard", icon: <LayoutDashboard className="h-4.5 w-4.5" /> },
+    { label: "Users", href: "/admin/users", icon: <Users className="h-4.5 w-4.5" /> },
+    { label: "Experts", href: "/admin/experts", icon: <ShieldCheck className="h-4.5 w-4.5" /> },
+    { label: "Posts", href: "/admin/posts", icon: <FileText className="h-4.5 w-4.5" /> },
+    { label: "Profile", href: "/admin/profile", icon: <User className="h-4.5 w-4.5" /> },
+  ]
+
+  const navItems = user?.role === "admin" ? adminNav : user?.role === "user" ? farmerNav : expertNav
 
   return (
     <aside className="hidden lg:flex flex-col w-64 bg-sidebar text-sidebar-foreground border-r border-sidebar-border h-screen sticky top-0">
@@ -79,7 +92,9 @@ export function AppSidebar() {
       <div className="px-3 pb-4">
         <div className="rounded-lg bg-sidebar-accent/50 p-3">
           <p className="text-xs text-sidebar-foreground/70 leading-relaxed">
-            {user?.role === "user"
+            {user?.role === "admin"
+              ? "Admin tools for monitoring users and platform health."
+              : user?.role === "user"
               ? "Tip: Upload a leaf image for instant disease detection."
               : "Help farmers by answering questions in the community."}
           </p>

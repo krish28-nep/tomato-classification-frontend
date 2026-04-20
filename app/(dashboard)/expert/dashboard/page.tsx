@@ -3,7 +3,6 @@
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import {
   Microscope,
   MessageSquare,
@@ -15,7 +14,7 @@ import {
   CheckCircle2,
 } from "lucide-react"
 import { PostCard } from "@/components/post-card"
-import { mockPosts, diseaseList } from "@/lib/mock-data"
+import { mockPosts } from "@/lib/mock-data"
 import { useAuth } from "@/hooks/useAuth"
 import { useQuery } from "@tanstack/react-query"
 import { Post } from "@/types/post"
@@ -148,70 +147,33 @@ export default function ExpertDashboard() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Activity */}
-        <div className="lg:col-span-2 flex flex-col gap-6">
-          {/* Unanswered Questions */}
-          {unansweredPosts.length > 0 && (
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-foreground font-heading flex items-center gap-2">
-                  <AlertTriangle className="h-4.5 w-4.5 text-accent" />
-                  Needs Your Expertise
-                </h2>
-              </div>
-              {posts && posts.map((post) => (
-                <PostCard key={post.id} post={post} basePath="/expert" />
-              ))}
-            </div>
-          )}
-
-          {/* Recent Community */}
+      <div className="max-w-3xl mx-auto w-full flex flex-col gap-6">
+        {unansweredPosts.length > 0 && (
           <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-foreground font-heading">Recent Discussions</h2>
-              <Link href="/expert/community">
-                <Button variant="ghost" size="sm" className="text-xs text-primary">
-                  View All <ArrowRight className="h-3.5 w-3.5 ml-1" />
-                </Button>
-              </Link>
+              <h2 className="text-lg font-semibold text-foreground font-heading flex items-center gap-2">
+                <AlertTriangle className="h-4.5 w-4.5 text-accent" />
+                Needs Your Expertise
+              </h2>
             </div>
             {posts && posts.map((post) => (
               <PostCard key={post.id} post={post} basePath="/expert" />
             ))}
           </div>
-        </div>
+        )}
 
-        {/* Disease Overview */}
         <div className="flex flex-col gap-4">
-          <h2 className="text-lg font-semibold text-foreground font-heading">Disease Overview</h2>
-          <Card>
-            <CardContent className="p-0">
-              <div className="flex flex-col divide-y divide-border">
-                {diseaseList.map((disease) => (
-                  <div key={disease.name} className="flex items-center justify-between p-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-card-foreground">{disease.name}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">{disease.cases} cases</span>
-                      <Badge
-                        variant="outline"
-                        className={`text-xs ${disease.severity === "High"
-                          ? "border-destructive/50 text-destructive"
-                          : disease.severity === "Moderate"
-                            ? "border-accent/50 text-accent-foreground"
-                            : "border-primary/50 text-primary"
-                          }`}
-                      >
-                        {disease.severity}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-foreground font-heading">Recent Discussions</h2>
+            <Link href="/expert/community">
+              <Button variant="ghost" size="sm" className="text-xs text-primary">
+                View All <ArrowRight className="h-3.5 w-3.5 ml-1" />
+              </Button>
+            </Link>
+          </div>
+          {posts && posts.map((post) => (
+            <PostCard key={post.id} post={post} basePath="/expert" />
+          ))}
         </div>
       </div>
     </div>

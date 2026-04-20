@@ -3,6 +3,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import axios from "@/lib/axios";
+import { setAccessToken } from "@/lib/axios";
 import { User } from "@/types/user";
 import { useMe } from "@/hooks/useMe";
 import { useQueryClient } from "@tanstack/react-query";
@@ -12,7 +13,7 @@ type AuthContextType = {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<User>;
-  logout: () => void;
+  logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,8 +38,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = async () => {
-    await axios.post("/auth/logout");
-    queryClient.removeQueries({ queryKey: ["users", "me"] });
+    try {
+      await axios.post("/auth/logout");
+    } finally {
+      setAccessToken(null);
+      queryClient.removeQueries({ queryKey: ["users", "me"] });
+    }
   };
 
   const refreshAccessToken = async () => {

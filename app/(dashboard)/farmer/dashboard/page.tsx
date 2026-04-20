@@ -9,10 +9,18 @@ import { Search, MessageSquare, Lightbulb, ArrowRight, TrendingUp, FileText, Mes
 import { PostCard } from "@/components/post-card"
 import { mockPosts, farmerTips } from "@/lib/mock-data"
 import { useAuth } from "@/hooks/useAuth"
+import { useQuery } from "@tanstack/react-query"
+import { Post } from "@/types/post"
+import { fetchPosts } from "@/lib/api/post"
 
 export default function FarmerDashboard() {
   const { user } = useAuth()
-  const recentPosts = mockPosts.slice(0, 3)
+  const { data } = useQuery<Post[]>({
+    queryKey: ["posts"],
+    queryFn: fetchPosts
+  })
+
+  const posts = data ?? []
 
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto">
@@ -140,7 +148,7 @@ export default function FarmerDashboard() {
             </Link>
           </div>
           <div className="flex flex-col gap-4">
-            {recentPosts.map((post) => (
+            {posts.map((post) => (
               <PostCard key={post.id} post={post} basePath="/farmer" />
             ))}
           </div>

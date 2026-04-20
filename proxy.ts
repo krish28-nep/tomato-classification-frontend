@@ -7,7 +7,7 @@ type TokenPayload = {
   type: string;
 };
 
-const PUBLIC_ROUTES = ["/login", "/signup"];
+const PUBLIC_ROUTES = ["/login", "/signup", "/admin"];
 
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -21,6 +21,10 @@ export function proxy(req: NextRequest) {
   const isPublic = PUBLIC_ROUTES.includes(pathname);
 
   if (!token) {
+    if (isPublic) {
+      return NextResponse.next();
+    }
+
     if (isFarmerRoute || isExpertRoute || isAdminRoute) {
       return NextResponse.redirect(new URL("/login", req.url));
     }

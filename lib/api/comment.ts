@@ -1,5 +1,6 @@
 // tomato-classification-frontend/lib/api/comment.ts
 import { CommentCreate } from "@/schemas/comment.schema"
+import { Comment } from "@/types/post"
 import axios from "../axios"
 
 export const fetchCommentByPostId = async (postId: number) => {
@@ -30,4 +31,9 @@ export const toggleCommentDislike = async ({ postId, commentId }: { postId: numb
 export const replyComment = async ({ postId, commentId, dataToSend }: { postId: number, commentId: number, dataToSend: CommentCreate }) => {
     const { data } = await axios.post(`/post/${postId}/comment/${commentId}/reply`, dataToSend)
     return data
+}
+
+export const fetchRepliesByCommentId = async ({ postId, commentId }: { postId: number, commentId: number }): Promise<Comment[]> => {
+    const { data } = await axios.get(`/post/${postId}/comment/${commentId}/reply`)
+    return data.data ?? []
 }

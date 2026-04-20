@@ -4,7 +4,6 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { TopNav } from "@/components/top-nav"
 import { MobileNav } from "@/components/mobile-nav"
-import { AuthProvider } from "@/context/AuthContext"
 
 function DashboardShell({ children }: { children: React.ReactNode }) {
 
@@ -22,9 +21,5 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <AuthProvider>
-      <DashboardShell>{children}</DashboardShell>
-    </AuthProvider>
-  )
+  return <DashboardShell>{children}</DashboardShell>
 }

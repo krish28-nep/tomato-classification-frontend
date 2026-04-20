@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Search, MessageSquare, User, Microscope } from "lucide-react"
+import { LayoutDashboard, Search, User, Microscope, ShieldCheck, Users, FileText, MessagesSquare } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/hooks/useAuth"
 
@@ -13,18 +13,26 @@ export function MobileNav() {
   const farmerItems = [
     { label: "Home", href: "/farmer/dashboard", icon: LayoutDashboard },
     { label: "Detect", href: "/farmer/disease-detection", icon: Search },
-    { label: "Community", href: "/farmer/community", icon: MessageSquare },
+    { label: "Chat", href: "/farmer/chat", icon: MessagesSquare },
     { label: "Profile", href: "/farmer/profile", icon: User },
   ]
 
   const expertItems = [
     { label: "Home", href: "/expert/dashboard", icon: LayoutDashboard },
     { label: "Analyze", href: "/expert/disease-analysis", icon: Microscope },
-    { label: "Community", href: "/expert/community", icon: MessageSquare },
+    { label: "Chat", href: "/expert/chat", icon: MessagesSquare },
     { label: "Profile", href: "/expert/profile", icon: User },
   ]
 
-  const items = user?.role === "user" ? farmerItems : expertItems
+  const adminItems = [
+    { label: "Home", href: "/admin/dashboard", icon: LayoutDashboard },
+    { label: "Users", href: "/admin/users", icon: Users },
+    { label: "Experts", href: "/admin/experts", icon: ShieldCheck },
+    { label: "Posts", href: "/admin/posts", icon: FileText },
+    { label: "Profile", href: "/admin/profile", icon: User },
+  ]
+
+  const items = user?.role === "admin" ? adminItems : user?.role === "user" ? farmerItems : expertItems
 
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border px-2 pb-[env(safe-area-inset-bottom)]">
