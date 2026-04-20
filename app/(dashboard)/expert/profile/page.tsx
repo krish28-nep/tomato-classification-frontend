@@ -1,19 +1,23 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { FileText, MessageCircle, Calendar, Mail, Edit, BookOpen, Users } from "lucide-react"
+import { FileText, MessageCircle, Calendar, Mail, Edit } from "lucide-react"
 import { UserBadge } from "@/components/user-badge"
-import { useAuth } from "@/lib/auth-context"
+import { useAuth } from "@/hooks/useAuth"
 
 export default function ExpertProfilePage() {
   const { user } = useAuth()
   if (!user) return null
 
-  const initials = user.name
+  const data = {
+    postCounts: "12",
+    dateJoined: new Date(Date.now()),
+    commentsCount: "14"
+  }
+
+  const initials = user.username
     .split(" ")
     .map((n) => n[0])
     .join("")
@@ -31,17 +35,16 @@ export default function ExpertProfilePage() {
       <Card>
         <CardContent className="p-6">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
-            <Avatar className="h-20 w-20 border-3 border-accent/30">
-              <AvatarFallback className="bg-accent/10 text-accent-foreground text-xl font-semibold">
+            <Avatar className="h-20 w-20 border-3 border-primary/20">
+              <AvatarFallback className="bg-primary/10 text-primary text-xl font-semibold">
                 {initials}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                <h2 className="text-xl font-bold text-card-foreground">{user.name}</h2>
+                <h2 className="text-xl font-bold text-card-foreground">{user.username}</h2>
                 <UserBadge role={user.role} />
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed mt-2">{user.bio}</p>
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 mt-3 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Mail className="h-3.5 w-3.5" />
@@ -49,7 +52,7 @@ export default function ExpertProfilePage() {
                 </span>
                 <span className="flex items-center gap-1">
                   <Calendar className="h-3.5 w-3.5" />
-                  Joined {new Date(user.joinedAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                  Joined {new Date(data.dateJoined).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
                 </span>
               </div>
             </div>
@@ -57,67 +60,30 @@ export default function ExpertProfilePage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <Card>
-          <CardContent className="p-4 text-center">
-            <FileText className="h-5 w-5 text-primary mx-auto mb-1" />
-            <p className="text-xl font-bold text-card-foreground">{user.postsCount}</p>
-            <p className="text-xs text-muted-foreground">Posts</p>
+          <CardContent className="p-5 flex items-center gap-4">
+            <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center">
+              <FileText className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-card-foreground">{data.postCounts}</p>
+              <p className="text-xs text-muted-foreground">Posts Created</p>
+            </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4 text-center">
-            <MessageCircle className="h-5 w-5 text-accent-foreground mx-auto mb-1" />
-            <p className="text-xl font-bold text-card-foreground">{user.commentsCount}</p>
-            <p className="text-xs text-muted-foreground">Answers</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <BookOpen className="h-5 w-5 text-primary mx-auto mb-1" />
-            <p className="text-xl font-bold text-card-foreground">4</p>
-            <p className="text-xs text-muted-foreground">Guides</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <Users className="h-5 w-5 text-accent-foreground mx-auto mb-1" />
-            <p className="text-xl font-bold text-card-foreground">89</p>
-            <p className="text-xs text-muted-foreground">Helped</p>
+          <CardContent className="p-5 flex items-center gap-4">
+            <div className="h-11 w-11 rounded-xl bg-accent/20 flex items-center justify-center">
+              <MessageCircle className="h-5 w-5 text-accent-foreground" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-card-foreground">{data.commentsCount}</p>
+              <p className="text-xs text-muted-foreground">Comments Made</p>
+            </div>
           </CardContent>
         </Card>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Account Settings</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-3">
-          <div className="flex items-center justify-between py-2">
-            <div>
-              <p className="text-sm font-medium text-card-foreground">Email Notifications</p>
-              <p className="text-xs text-muted-foreground">Receive alerts when farmers need help</p>
-            </div>
-            <Badge variant="outline" className="text-primary border-primary/30">Enabled</Badge>
-          </div>
-          <Separator />
-          <div className="flex items-center justify-between py-2">
-            <div>
-              <p className="text-sm font-medium text-card-foreground">Expert Verification</p>
-              <p className="text-xs text-muted-foreground">Your expert status has been verified</p>
-            </div>
-            <Badge className="bg-primary/10 text-primary border-primary/20">Verified</Badge>
-          </div>
-          <Separator />
-          <div className="flex items-center justify-between py-2">
-            <div>
-              <p className="text-sm font-medium text-card-foreground">Account</p>
-              <p className="text-xs text-muted-foreground">Manage your account settings</p>
-            </div>
-            <Button variant="ghost" size="sm" className="text-xs">Manage</Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 }

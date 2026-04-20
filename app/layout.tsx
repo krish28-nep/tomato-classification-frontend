@@ -5,6 +5,7 @@ import { Toaster } from 'sonner'
 import './globals.css'
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
 import { AuthProvider } from '@/context/AuthContext'
+import { SocketProvider } from '@/context/SocketContext'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-dm-sans' })
@@ -47,8 +48,10 @@ export default function RootLayout({
       <body className={`${inter.variable} ${dmSans.variable} font-sans antialiased`}>
         <ReactQueryProvider>
           <AuthProvider>
-            {children}
-            <Toaster position="top-right" richColors />
+            <SocketProvider>
+              {children}
+              <Toaster position="top-right" richColors />
+            </SocketProvider>
           </AuthProvider>
         </ReactQueryProvider>
       </body>

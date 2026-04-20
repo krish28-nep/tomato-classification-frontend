@@ -285,58 +285,64 @@ Create a new community post with optional image file uploads.
 
 ---
 
-### `GET /posts`
+### `GET /post`
 
-Retrieve paginated community posts with optional search and tag filtering.
+Retrieve paginated community posts.
 
 **Query Parameters**
 
 | Param    | Type     | Required | Description                          |
 |----------|----------|----------|--------------------------------------|
-| `page`   | `number` | ✔        | Page number (starts at `1`)          |
-| `limit`  | `number` | ✔        | Number of posts per page             |
-| `search` | `string` | ✘        | Keyword search in title/content      |
-| `tags`   | `string` | ✘        | Comma-separated tag filter           |
+| `limit`  | `number` | ✔        | Number of posts per request          |
+| `cursor` | `string` | ✘        | Cursor returned from previous page   |
 
 **Example Requests**
 
 ```
-GET /posts?page=1&limit=10
-GET /posts?page=1&limit=10&search=blight&tags=tomato,fungicide
+GET /post?limit=10
+GET /post?limit=10&cursor=MjAyNi0wNC0wOVQxMjozMDowMCswMDowMA==
 ```
 
 **Response `200 OK`**
 
 ```json
 {
-  "posts": [ ...Post[] ],
-  "page": 1,
-  "limit": 10,
-  "total": 84,
-  "hasMore": true
+  "success": true,
+  "data": [ ...Post[] ],
+  "message": "Posts reterived successfully",
+  "pagination": {
+    "next_cursor": "MjAyNi0wNC0wOVQxMjozMDowMCswMDowMA==",
+    "has_more": true,
+    "total": 84
+  }
 }
 ```
 
 ---
 
-### `GET /posts/me`
+### `GET /post/user`
 
 Retrieve the authenticated user's own posts (paginated).
 
 **Query Parameters**
 
-| Param   | Type     | Required | Description           |
-|---------|----------|----------|-----------------------|
-| `page`  | `number` | ✔        | Page number           |
-| `limit` | `number` | ✔        | Posts per page        |
+| Param    | Type     | Required | Description                        |
+|----------|----------|----------|------------------------------------|
+| `limit`  | `number` | ✔        | Number of posts per request        |
+| `cursor` | `string` | ✘        | Cursor returned from previous page |
 
 **Response `200 OK`**
 
 ```json
 {
-  "posts": [ ...Post[] ],
-  "page": 1,
-  "total": 23
+  "success": true,
+  "data": [ ...Post[] ],
+  "message": "Post reterived successfully",
+  "pagination": {
+    "next_cursor": "MjAyNi0wNC0wOVQxMjozMDowMCswMDowMA==",
+    "has_more": true,
+    "total": 23
+  }
 }
 ```
 

@@ -1,36 +1,69 @@
 // tomato-classification-frontend/app/(dashboard)/farmer/community/page.tsx
 "use client"
 
-import { useState } from "react"
+import { useDeferredValue, useEffect, useState } from "react"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Search, Filter } from "lucide-react"
+import { Search } from "lucide-react"
 import { PostCard } from "@/components/post-card"
 import { CreatePostModal } from "@/components/create-post-modal"
-import { useQuery } from "@tanstack/react-query"
-import { fetchPosts } from "@/lib/api/post"
-import { Post } from "@/types/post"
+import { useInfiniteQuery } from "@tanstack/react-query"
+import { fetchPostsPage } from "@/lib/api/post"
+import { Spinner } from "@/components/ui/spinner"
+import { useInView } from "react-intersection-observer"
+import { useSearchParams } from "next/navigation"
 
-const tags = ["All", "disease", "prevention", "treatment", "help", "guide", "organic"]
+const POSTS_PER_PAGE = 10
 
 export default function FarmerCommunityPage() {
-  const [search, setSearch] = useState("")
-  const [activeTag, setActiveTag] = useState("All")
-
-  const { data } = useQuery<Post[]>({
-    queryKey: ["posts"],
-    queryFn: fetchPosts
+  const searchParams = useSearchParams()
+  const [search, setSearch] = useState(searchParams.get("search") ?? "")
+  const deferredSearch = useDeferredValue(search.trim())
+  const { ref, inView } = useInView({
+    rootMargin: "200px 0px",
+    threshold: 0
   })
 
-  const filteredPosts =
-    data?.filter((post) => {
-      const matchesSearch =
-        search === "" ||
-        post.title.toLowerCase().includes(search.toLowerCase()) ||
-        post.content.toLowerCase().includes(search.toLowerCase());
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    isError
+  } = useInfiniteQuery({
+    queryKey: ["posts", "community", deferredSearch],
+    initialPageParam: null as string | null,
+    queryFn: ({ pageParam }) =>
+      fetchPostsPage({
+        limit: POSTS_PER_PAGE,
+        cursor: pageParam
+      }),
+    getNextPageParam: (lastPage) => (
+      lastPage.hasMore ? lastPage.nextCursor : undefined
+    )
+  })
 
-      return matchesSearch;
-    }) ?? [];
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      void fetchNextPage()
+    }
+  }, [fetchNextPage, hasNextPage, inView, isFetchingNextPage])
+
+  useEffect(() => {
+    setSearch(searchParams.get("search") ?? "")
+  }, [searchParams])
+
+  const allPosts = data?.pages.flatMap((page) => page.posts) ?? []
+  const totalPosts = allPosts.length
+  const posts = allPosts.filter((post) => {
+    const normalizedSearch = deferredSearch.toLowerCase()
+
+    return (
+      normalizedSearch === "" ||
+      post.title.toLowerCase().includes(normalizedSearch) ||
+      post.content.toLowerCase().includes(normalizedSearch)
+    )
+  })
 
   return (
     <div className="flex flex-col gap-6 max-w-3xl mx-auto">
@@ -40,11 +73,13 @@ export default function FarmerCommunityPage() {
           <p className="text-muted-foreground text-sm mt-1">
             Browse discussions, ask questions, and learn from experts.
           </p>
+          <p className="text-xs text-muted-foreground mt-2">
+            {totalPosts} total posts
+          </p>
         </div>
         <CreatePostModal />
       </div>
 
-      {/* Search & Filters */}
       <div className="flex flex-col gap-3">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -55,40 +90,39 @@ export default function FarmerCommunityPage() {
             className="pl-9"
           />
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
-          {tags.map((tag) => (
-            <Badge
-              key={tag}
-              variant={activeTag === tag ? "default" : "outline"}
-              className={`cursor-pointer text-xs ${activeTag === tag
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-                }`}
-              onClick={() => setActiveTag(tag)}
-            >
-              {tag}
-            </Badge>
-          ))}
-        </div>
       </div>
 
       {/* Posts */}
-      {filteredPosts.length > 0 ? (
-        <div className="flex flex-col gap-4">
-          {filteredPosts.map((post) => (
-            <PostCard key={post.id} post={post} basePath="/farmer" />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center mx-auto mb-3">
-            <Search className="h-6 w-6 text-muted-foreground" />
+      {isLoading ?
+        <div className="w-full h-[50vh] flex items-center justify-center"><Spinner /></div> :
+        isError ? (
+          <div className="text-center py-12">
+            <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center mx-auto mb-3">
+              <Search className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <h3 className="font-semibold text-foreground">Unable to load posts</h3>
+            <p className="text-sm text-muted-foreground mt-1">Please try again in a moment.</p>
           </div>
-          <h3 className="font-semibold text-foreground">No posts found</h3>
-          <p className="text-sm text-muted-foreground mt-1">Try adjusting your search or filters.</p>
-        </div>
-      )}
+        ) : posts.length > 0 ? (
+          <div className="flex flex-col gap-4">
+            {posts.map((post) => (
+              <PostCard key={post.id} post={post} basePath="/farmer" />
+            ))}
+            <div ref={ref} className="flex min-h-10 items-center justify-center py-2">
+              {isFetchingNextPage ? <Spinner /> : !hasNextPage ? (
+                <p className="text-sm text-muted-foreground">You&apos;ve reached the end of the feed.</p>
+              ) : null}
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center mx-auto mb-3">
+              <Search className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <h3 className="font-semibold text-foreground">No posts found</h3>
+            <p className="text-sm text-muted-foreground mt-1">Try adjusting your search.</p>
+          </div>
+        )}
     </div>
   )
 }

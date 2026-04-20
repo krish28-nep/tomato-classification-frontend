@@ -1,32 +1,51 @@
 "use client"
 
 import { useState, useRef, useCallback } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Upload, ImagePlus, X, Loader2, Microscope } from "lucide-react"
-import { DiseaseResultCard } from "@/components/disease-result-card"
-import { mockDiseaseResult } from "@/lib/mock-data"
+import { Upload, ImagePlus, X, Loader2, Microscope, AlertTriangle, Pill, Info } from "lucide-react"
+import { predictDisease } from "@/lib/api/disease"
 import { toast } from "sonner"
 
 export default function DiseaseAnalysisPage() {
-  const [image, setImage] = useState<string | null>(null)
-  const [analyzing, setAnalyzing] = useState(false)
-  const [result, setResult] = useState<typeof mockDiseaseResult | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [notes, setNotes] = useState("")
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) return
+
     const reader = new FileReader()
     reader.onload = () => {
-      setImage(reader.result as string)
-      setResult(null)
+      setImagePreview(reader.result as string)
+      setSelectedFile(file)
     }
     reader.readAsDataURL(file)
   }, [])
+
+  const {
+    data: predictionResponse,
+    isFetching: isAnalyzing,
+    isError,
+    error,
+    refetch
+  } = useQuery({
+    queryKey: ["expert-disease-prediction", selectedFile?.name, selectedFile?.lastModified, selectedFile?.size],
+    queryFn: async () => {
+      if (!selectedFile) {
+        throw new Error("Please select an image before analyzing.")
+      }
+
+      return predictDisease(selectedFile)
+    },
+    enabled: false,
+    retry: false
+  })
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -51,22 +70,27 @@ export default function DiseaseAnalysisPage() {
   }
 
   const handleAnalyze = async () => {
-    if (!image) return
-    setAnalyzing(true)
-    await new Promise((r) => setTimeout(r, 2000))
-    setResult(mockDiseaseResult)
-    setAnalyzing(false)
+    if (!selectedFile) return
+    await refetch()
   }
 
   const handleClear = () => {
-    setImage(null)
-    setResult(null)
+    setImagePreview(null)
+    setSelectedFile(null)
     setNotes("")
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
   }
 
   const handleSaveNotes = () => {
     toast.success("Expert notes saved successfully!")
   }
+
+  const result = predictionResponse?.data
+  const formattedPredictedClass = result?.predicted_class.replaceAll("_", " ") ?? ""
+  const errorMessage =
+    error instanceof Error ? error.message : "We couldn't analyze the image right now. Please try again."
 
   return (
     <div className="flex flex-col gap-6 max-w-4xl mx-auto">
@@ -79,7 +103,7 @@ export default function DiseaseAnalysisPage() {
 
       <Card className="border-2 border-dashed border-border/60 overflow-hidden">
         <CardContent className="p-0">
-          {!image ? (
+          {!imagePreview ? (
             <div
               onDrop={handleDrop}
               onDragOver={handleDragOver}
@@ -107,7 +131,7 @@ export default function DiseaseAnalysisPage() {
           ) : (
             <div className="relative">
               <div className="aspect-video max-h-96 overflow-hidden flex items-center justify-center bg-muted">
-                <img src={image} alt="Uploaded leaf" className="max-h-full max-w-full object-contain" />
+                <img src={imagePreview} alt="Uploaded leaf" className="max-h-full max-w-full object-contain" />
               </div>
               <button
                 onClick={handleClear}
@@ -119,8 +143,8 @@ export default function DiseaseAnalysisPage() {
               {!result && (
                 <div className="p-4 border-t border-border flex items-center justify-between bg-card">
                   <p className="text-sm text-muted-foreground">Image ready for analysis</p>
-                  <Button onClick={handleAnalyze} disabled={analyzing} className="gap-2">
-                    {analyzing ? (
+                  <Button onClick={handleAnalyze} disabled={isAnalyzing} className="gap-2">
+                    {isAnalyzing ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
                         Analyzing...
@@ -140,7 +164,7 @@ export default function DiseaseAnalysisPage() {
         </CardContent>
       </Card>
 
-      {analyzing && (
+      {isAnalyzing && (
         <Card className="border-primary/30">
           <CardContent className="p-8 flex flex-col items-center gap-4">
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -152,9 +176,67 @@ export default function DiseaseAnalysisPage() {
         </Card>
       )}
 
+      {isError && (
+        <Card className="border-destructive/30">
+          <CardContent className="p-6">
+            <p className="text-sm text-destructive">{errorMessage}</p>
+          </CardContent>
+        </Card>
+      )}
+
       {result && (
         <>
-          <DiseaseResultCard result={result} />
+          <div className="flex flex-col gap-4">
+            <Card className="border-primary/30 shadow-md">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg text-card-foreground">{formattedPredictedClass}</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">{predictionResponse.message}</p>
+              </CardHeader>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2 text-card-foreground">
+                  <AlertTriangle className="h-4 w-4 text-accent" />
+                  Cause
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground leading-relaxed">{result.cause}</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2 text-card-foreground">
+                  <Pill className="h-4 w-4 text-chart-3" />
+                  Prescriptions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="flex flex-col gap-2">
+                  {result.prescriptions.map((item, index) => (
+                    <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-chart-3 mt-1.5 shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-muted/50 border-border/40">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2 text-card-foreground">
+                  <Info className="h-4 w-4 text-muted-foreground" />
+                  Predicted Label
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">{result.predicted_class}</p>
+              </CardContent>
+            </Card>
+          </div>
 
           <Card>
             <CardHeader>

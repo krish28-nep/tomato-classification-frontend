@@ -75,15 +75,6 @@ export function PostCard({ post, basePath = "/farmer" }: PostCardProps) {
             <ImageGallery title={post.title} images={[post.image]} />
           </div>
         )}
-        {/* {post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-3">
-            {post.tags.map((tag) => (
-              <Badge key={tag} variant="outline" className="text-xs font-normal text-muted-foreground">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )} */}
       </CardContent>
       <CardFooter className="pt-0 border-t border-border/40">
         <div className="flex items-center justify-between w-full pt-3">
@@ -91,7 +82,7 @@ export function PostCard({ post, basePath = "/farmer" }: PostCardProps) {
           <Link href={`${basePath}/post/${post.id}`}>
             <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground">
               <MessageCircle className="h-3.5 w-3.5" />
-              {post.comments && post.comments.length || 0} {post.comments && post.comments.length === 1 ? "comment" : "comments"}
+              {post.total_comments} {post.total_comments === 1 ? "comment" : "comments"}
             </Button>
           </Link>
         </div>

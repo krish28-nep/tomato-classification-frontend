@@ -39,7 +39,6 @@ export interface Post {
   dislikes: number
   commentsCount: number
   createdAt: string
-  tags: string[]
 }
 
 export interface DiseaseResult {
@@ -135,7 +134,6 @@ export const mockPosts: Post[] = [
     dislikes: 1,
     commentsCount: 2,
     createdAt: "2026-02-28T10:00:00Z",
-    tags: ["disease", "leaves", "help"],
   },
   {
     id: "p2",
@@ -159,7 +157,6 @@ export const mockPosts: Post[] = [
     dislikes: 0,
     commentsCount: 1,
     createdAt: "2026-02-25T08:00:00Z",
-    tags: ["prevention", "late-blight", "guide"],
   },
   {
     id: "p3",
@@ -187,7 +184,6 @@ export const mockPosts: Post[] = [
     dislikes: 0,
     commentsCount: 1,
     createdAt: "2026-03-01T07:00:00Z",
-    tags: ["wilting", "curling", "virus"],
   },
   {
     id: "p4",
@@ -201,7 +197,6 @@ export const mockPosts: Post[] = [
     dislikes: 2,
     commentsCount: 0,
     createdAt: "2026-02-20T12:00:00Z",
-    tags: ["organic", "septoria", "treatment"],
   },
   {
     id: "p5",
@@ -225,7 +220,6 @@ export const mockPosts: Post[] = [
     dislikes: 0,
     commentsCount: 1,
     createdAt: "2026-02-21T14:00:00Z",
-    tags: ["success-story", "fusarium", "recovery"],
   },
 ]
 
