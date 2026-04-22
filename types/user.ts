@@ -8,7 +8,7 @@ export type User = {
 }
 
 export enum Role {
-    USER = "user",
+    FARMER = "farmer",
     EXPERT = "expert",
     ADMIN = "admin",
 }

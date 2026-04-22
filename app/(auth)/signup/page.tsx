@@ -39,7 +39,7 @@ export default function SignupPage() {
   } = useForm<SignUpData>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      role: Role.USER,
+      role: Role.FARMER,
     },
   });
 
@@ -92,7 +92,7 @@ export default function SignupPage() {
                 <RadioGroup
                   value={role}
                   onValueChange={(v) => {
-                    const r = v === "expert" ? Role.EXPERT : Role.USER
+                    const r = v === "expert" ? Role.EXPERT : Role.FARMER
                     setRole(v as "farmer" | "expert")
                     setValue("role", r)
                   }}

@@ -3,7 +3,7 @@ import {jwtDecode} from "jwt-decode";
 
 type TokenPayload = {
   user_id: number;
-  role: "user" | "expert" | "admin";
+  role: "farmer" | "expert" | "admin";
   type: string;
 };
 
@@ -35,7 +35,7 @@ export function proxy(req: NextRequest) {
     const decoded = jwtDecode<TokenPayload>(token);
     const role = decoded.role;
 
-    if (role === "user") {
+    if (role === "farmer") {
       if (!isFarmerRoute) {
         return NextResponse.redirect(new URL("/farmer/dashboard", req.url));
       }
@@ -54,7 +54,7 @@ export function proxy(req: NextRequest) {
     }
 
     if (isPublic) {
-      if (role === "user") {
+      if (role === "farmer") {
         return NextResponse.redirect(new URL("/farmer/dashboard", req.url));
       }
       if (role === "expert") {

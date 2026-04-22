@@ -53,7 +53,7 @@ export function PostCard({ post, basePath = "/farmer" }: PostCardProps) {
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-medium text-sm text-card-foreground">{post?.user.username || "Ram"}</span>
-                <UserBadge role={post.user?.role || Role.USER} />
+                <UserBadge role={post.user?.role || Role.FARMER} />
               </div>
               <div className="flex items-center gap-1 text-muted-foreground text-xs mt-0.5">
                 <Clock className="h-3 w-3" />
