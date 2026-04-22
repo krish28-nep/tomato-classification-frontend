@@ -46,7 +46,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   }, [pathname])
 
   useEffect(() => {
-    if (user?.role === Role.USER) {
+    if (user?.role === Role.FARMER) {
       chatPathRef.current = "/farmer/chat"
       return
     }
@@ -111,20 +111,33 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const send = useCallback((payload: { to: number; message: string }) => {
     const socket = socketRef.current
 
-    if (!socket || socket.readyState !== WebSocket.OPEN) {
+    if (!socket || socket.readyState !== WebSocket.OPEN || !user?.id) {
       return false
     }
 
     socket.send(JSON.stringify(payload))
+
+    const optimisticMessage: SocketChatMessage = {
+      message: payload.message,
+      sender_id: user.id,
+      receiver_id: payload.to,
+      is_read: false,
+      messaged_at: new Date().toISOString(),
+    }
+
+    const existingMessages = messageBufferRef.current.get(payload.to) ?? []
+    messageBufferRef.current.set(payload.to, [...existingMessages, optimisticMessage].slice(-20))
+    emit("message", optimisticMessage)
+
     return true
-  }, [])
+  }, [emit, user?.id])
 
   const getBufferedMessages = useCallback((roomUserId: number) => {
     return messageBufferRef.current.get(roomUserId) ?? []
   }, [])
 
   useEffect(() => {
-    if (!isAuthenticated || !user?.email) {
+    if (!isAuthenticated || !user?.id) {
       setStatus("disconnected")
       socketRef.current?.close()
       socketRef.current = null
@@ -198,7 +211,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       ws.close()
       socketRef.current = null
     }
-  }, [emit, isAuthenticated, parseSocketMessage, router, user?.email, user?.id])
+  }, [emit, isAuthenticated, parseSocketMessage, router, user?.id])
 
   const value = useMemo<SocketContextType>(() => ({
     status,

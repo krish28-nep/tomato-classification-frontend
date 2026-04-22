@@ -53,7 +53,7 @@ export function TopNav() {
   const profilePath =
     user?.role === Role.ADMIN
       ? "/admin/profile"
-      : user?.role === Role.USER
+      : user?.role === Role.FARMER
         ? "/farmer/profile"
         : "/expert/profile"
 
@@ -277,7 +277,7 @@ export function TopNav() {
             <DropdownMenuLabel className="flex flex-col gap-1">
               <span className="text-sm">{user?.username || "User"}</span>
               <span className="text-xs text-muted-foreground font-normal">{user?.email || ""}</span>
-              <UserBadge role={user?.role ?? Role.USER} />
+              <UserBadge role={user?.role ?? Role.FARMER} />
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => router.push(profilePath)}>

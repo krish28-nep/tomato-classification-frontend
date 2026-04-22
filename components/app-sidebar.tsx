@@ -57,7 +57,7 @@ export function AppSidebar() {
     { label: "Profile", href: "/admin/profile", icon: <User className="h-4.5 w-4.5" /> },
   ]
 
-  const navItems = user?.role === "admin" ? adminNav : user?.role === "user" ? farmerNav : expertNav
+  const navItems = user?.role === "admin" ? adminNav : user?.role === "farmer" ? farmerNav : expertNav
 
   return (
     <aside className="hidden lg:flex flex-col w-64 bg-sidebar text-sidebar-foreground border-r border-sidebar-border h-screen sticky top-0">
@@ -94,7 +94,7 @@ export function AppSidebar() {
           <p className="text-xs text-sidebar-foreground/70 leading-relaxed">
             {user?.role === "admin"
               ? "Admin tools for monitoring users and platform health."
-              : user?.role === "user"
+              : user?.role === "farmer"
               ? "Tip: Upload a leaf image for instant disease detection."
               : "Help farmers by answering questions in the community."}
           </p>

@@ -51,7 +51,7 @@ export default function ExpertPostDetail({
   const postId = Number(id)
   const queryClient = useQueryClient()
   const { user } = useAuth()
-  const role = user?.role ?? Role.USER
+  const role = user?.role ?? Role.FARMER
 
   const {
     data: post,

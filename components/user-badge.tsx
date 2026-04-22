@@ -11,6 +11,14 @@ export function UserBadge({ role }: { role: Role }) {
       </Badge>
     )
   }
+
+  else if (role === "admin") {
+    return (
+      <Badge className="bg-destructive text-white gap-1 text-xs font-medium">
+        Admin
+      </Badge>
+    )
+  }
   return (
     <Badge variant="secondary" className="gap-1 text-xs font-medium">
       <Leaf className="h-3 w-3" />

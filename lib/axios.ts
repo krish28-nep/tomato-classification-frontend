@@ -1,36 +1,41 @@
-// tomato-classification-frontend/lib/axios.ts
+// lib/axios.ts
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
-export const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+export const baseURL =
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
 const axiosInstance = axios.create({
   baseURL,
   timeout: 10000,
-  withCredentials: true,
+  withCredentials: true, // required for refresh token (HttpOnly cookie)
 });
 
 let accessToken: string | null = null;
 let isRefreshing = false;
+let refreshTimeout: NodeJS.Timeout | null = null;
 
 type FailedRequest = {
   resolve: (token: string) => void;
   reject: (error: Error) => void;
 };
+
 let failedQueue: FailedRequest[] = [];
 
-export const setAccessToken = (token: string | null) => {
-  accessToken = token;
+// Decode JWT expiry (no external dependency)
+type JwtPayload = {
+  exp: number;
 };
 
-// Request interceptor - adds token to headers
-axiosInstance.interceptors.request.use(config => {
-  if (accessToken && config.headers) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
+const getTokenExpiry = (token: string): number | null => {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1])) as JwtPayload;
+    return payload.exp * 1000; // convert to ms
+  } catch {
+    return null;
   }
-  return config;
-});
+};
 
-// Process queued requests after token refresh
+// Process queued requests after refresh completes
 const processQueue = (error: Error | null, token?: string) => {
   failedQueue.forEach(({ resolve, reject }) => {
     if (error) {
@@ -42,20 +47,86 @@ const processQueue = (error: Error | null, token?: string) => {
   failedQueue = [];
 };
 
-// Response interceptor - handles token refresh
-axiosInstance.interceptors.response.use(
-  res => res,
-  async (error: AxiosError) => {
-    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
-    const errorData = error.response?.data as { code?: string } | undefined;
+const scheduleTokenRefresh = (token: string) => {
+  const expiry = getTokenExpiry(token);
+  if (!expiry) return;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      // If already refreshing, queue this request
+  // Refresh 1 minute before expiry
+  const REFRESH_BEFORE_MS = 60_000;
+  const delay = expiry - Date.now() - REFRESH_BEFORE_MS;
+
+  if (refreshTimeout) {
+    clearTimeout(refreshTimeout);
+    refreshTimeout = null;
+  }
+
+  if (delay <= 0) {
+    // Token already close to expiry
+    refreshAccessToken();
+    return;
+  }
+
+  refreshTimeout = setTimeout(() => {
+    refreshAccessToken();
+  }, delay);
+};
+
+export const setAccessToken = (token: string | null) => {
+  accessToken = token;
+
+  if (token) {
+    scheduleTokenRefresh(token);
+  } else if (refreshTimeout) {
+    clearTimeout(refreshTimeout);
+    refreshTimeout = null;
+  }
+};
+
+const refreshAccessToken = async () => {
+  if (isRefreshing) return;
+
+  isRefreshing = true;
+
+  try {
+    // Uses refresh token from HttpOnly cookie
+    const res = await axiosInstance.post('/auth/refresh');
+
+    const newToken: string = res.data.data.access_token;
+
+    setAccessToken(newToken);
+    processQueue(null, newToken);
+  } catch (err) {
+    processQueue(err as Error);
+    setAccessToken(null);
+  } finally {
+    isRefreshing = false;
+  }
+};
+
+axiosInstance.interceptors.request.use(config => {
+  if (accessToken && config.headers) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
+  return config;
+});
+
+axiosInstance.interceptors.response.use(
+  response => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as AxiosRequestConfig & {
+      _retry?: boolean;
+    };
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry
+    ) {
+      // If refresh already in progress → queue request
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({
-            resolve: (token?: string) => {
-              if (token && originalRequest.headers) {
+            resolve: (token: string) => {
+              if (originalRequest.headers) {
                 originalRequest.headers.Authorization = `Bearer ${token}`;
               }
               resolve(axiosInstance(originalRequest));
@@ -69,30 +140,20 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Get new access token using refresh token from cookie
         const res = await axiosInstance.post('/auth/refresh');
-
-        // Check multiple possible response structures
-        const newToken = res.data.data.access_token;
+        const newToken: string = res.data.data.access_token;
 
         setAccessToken(newToken);
 
-        // Update the original request's authorization header
         if (originalRequest.headers) {
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
         }
 
-        // Process all queued requests with new token
         processQueue(null, newToken);
-
-        // Retry the original request
         return axiosInstance(originalRequest);
       } catch (err) {
-        // If refresh fails, reject all queued requests
-
-        processQueue(err as Error, undefined);
-        setAccessToken(null); // Clear the invalid token
-
+        processQueue(err as Error);
+        setAccessToken(null);
         return Promise.reject(err);
       } finally {
         isRefreshing = false;
