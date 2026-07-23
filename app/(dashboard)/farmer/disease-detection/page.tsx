@@ -124,7 +124,7 @@ export default function DiseaseDetectionPage() {
             </div>
           ) : (
             <div className="relative">
-              <div className="aspect-video max-h-96 overflow-hidden flex items-center justify-center bg-muted">
+              <div className="aspect-video max-h-96 w-full overflow-hidden flex items-center justify-center bg-muted">
                 <img src={imagePreview} alt="Uploaded leaf" className="max-h-full max-w-full object-contain" />
               </div>
               <button
@@ -226,18 +226,6 @@ export default function DiseaseDetectionPage() {
                   </li>
                 ))}
               </ul>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-muted/50 border-border/40">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2 text-card-foreground">
-                <Info className="h-4 w-4 text-muted-foreground" />
-                Predicted Label
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">{result.predicted_class}</p>
             </CardContent>
           </Card>
         </div>
