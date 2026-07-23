@@ -16,7 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Bell, Search, LogOut, User, FileText, Users, ShieldCheck } from "lucide-react"
+import { Search, LogOut, User, FileText, Users, ShieldCheck } from "lucide-react"
 import { UserBadge } from "@/components/user-badge"
 import { useAuth } from "@/hooks/useAuth"
 import { Role } from "@/types/user"
@@ -258,12 +258,6 @@ export function TopNav() {
       </div>
 
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="relative h-9 w-9 text-muted-foreground">
-          <Bell className="h-4.5 w-4.5" />
-          <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-destructive" />
-          <span className="sr-only">Notifications</span>
-        </Button>
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center gap-2 px-2 h-9">

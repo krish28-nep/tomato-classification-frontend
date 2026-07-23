@@ -83,10 +83,6 @@ export default function DiseaseAnalysisPage() {
     }
   }
 
-  const handleSaveNotes = () => {
-    toast.success("Expert notes saved successfully!")
-  }
-
   const result = predictionResponse?.data
   const formattedPredictedClass = result?.predicted_class.replaceAll("_", " ") ?? ""
   const errorMessage =
@@ -130,7 +126,7 @@ export default function DiseaseAnalysisPage() {
             </div>
           ) : (
             <div className="relative">
-              <div className="aspect-video max-h-96 overflow-hidden flex items-center justify-center bg-muted">
+              <div className="aspect-video max-h-96 w-full overflow-hidden flex items-center justify-center bg-muted">
                 <img src={imagePreview} alt="Uploaded leaf" className="max-h-full max-w-full object-contain" />
               </div>
               <button
@@ -224,42 +220,7 @@ export default function DiseaseAnalysisPage() {
                 </ul>
               </CardContent>
             </Card>
-
-            <Card className="bg-muted/50 border-border/40">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-semibold flex items-center gap-2 text-card-foreground">
-                  <Info className="h-4 w-4 text-muted-foreground" />
-                  Predicted Label
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">{result.predicted_class}</p>
-              </CardContent>
-            </Card>
           </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Expert Notes</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-3">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="expert-notes">Additional Observations & Recommendations</Label>
-                <Textarea
-                  id="expert-notes"
-                  placeholder="Add your expert observations, corrections, or additional treatment recommendations..."
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  className="min-h-[100px] resize-none"
-                />
-              </div>
-              <div className="flex justify-end">
-                <Button onClick={handleSaveNotes} disabled={!notes.trim()}>
-                  Save Notes
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
         </>
       )}
     </div>

@@ -12,7 +12,6 @@ import {
   Leaf,
   Microscope,
   BookOpen,
-  Bell,
   Users,
   ShieldCheck,
 } from "lucide-react"
@@ -35,7 +34,7 @@ export function AppSidebar() {
     { label: "Community", href: "/farmer/community", icon: <MessageSquare className="h-4.5 w-4.5" /> },
     { label: "Chat", href: "/farmer/chat", icon: <MessagesSquare className="h-4.5 w-4.5" /> },
     { label: "My Posts", href: "/farmer/my-posts", icon: <FileText className="h-4.5 w-4.5" /> },
-    { label: "Notifications", href: "/farmer/notifications", icon: <Bell className="h-4.5 w-4.5" /> },
+    // { label: "Notifications", href: "/farmer/notifications", icon: <Bell className="h-4.5 w-4.5" /> },
     { label: "Profile", href: "/farmer/profile", icon: <User className="h-4.5 w-4.5" /> },
   ]
 
@@ -45,7 +44,7 @@ export function AppSidebar() {
     { label: "Community", href: "/expert/community", icon: <MessageSquare className="h-4.5 w-4.5" /> },
     { label: "Chat", href: "/expert/chat", icon: <MessagesSquare className="h-4.5 w-4.5" /> },
     { label: "Knowledge Posts", href: "/expert/knowledge-posts", icon: <BookOpen className="h-4.5 w-4.5" /> },
-    { label: "Notifications", href: "/expert/notifications", icon: <Bell className="h-4.5 w-4.5" /> },
+    // { label: "Notifications", href: "/expert/notifications", icon: <Bell className="h-4.5 w-4.5" /> },
     { label: "Profile", href: "/expert/profile", icon: <User className="h-4.5 w-4.5" /> },
   ]
 
@@ -88,18 +87,6 @@ export function AppSidebar() {
           )
         })}
       </nav>
-
-      <div className="px-3 pb-4">
-        <div className="rounded-lg bg-sidebar-accent/50 p-3">
-          <p className="text-xs text-sidebar-foreground/70 leading-relaxed">
-            {user?.role === "admin"
-              ? "Admin tools for monitoring users and platform health."
-              : user?.role === "farmer"
-              ? "Tip: Upload a leaf image for instant disease detection."
-              : "Help farmers by answering questions in the community."}
-          </p>
-        </div>
-      </div>
     </aside>
   )
 }
