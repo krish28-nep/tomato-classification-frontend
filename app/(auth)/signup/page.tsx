@@ -20,6 +20,7 @@ import { SignUpData, signUpSchema } from "@/schemas/auth.schema"
 import axios from "@/lib/axios"
 import { Role } from "@/types/user"
 import EmailOtpModal from "@/components/auth/email-otp-modal"
+import { showErrorToast } from "@/lib/showErrorToast"
 
 export default function SignupPage() {
 
@@ -53,7 +54,7 @@ export default function SignupPage() {
       reset()
 
     } catch (err) {
-      toast.error("Signup failed")
+      showErrorToast(err, "Signup failed")
     }
   }
 
@@ -150,6 +151,7 @@ export default function SignupPage() {
                 <div className="relative">
 
                   <Input
+                    className="pr-8"
                     type={showPassword ? "text" : "password"}
                     placeholder="Create password"
                     {...register("password")}
@@ -179,6 +181,7 @@ export default function SignupPage() {
                 <div className="relative">
 
                   <Input
+                    className="pr-8"
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm password"
                     {...register("confirmPassword")}
@@ -229,7 +232,13 @@ export default function SignupPage() {
         open={otpModalOpen}
         email={signupEmail}
         onSuccess={() => router.push("/login")}
-        onClose={() => setOtpModalOpen(false)}
+        onClose={() => {
+          setOtpModalOpen(false)
+
+          if (signupEmail) {
+            router.push(`/verify-email?email=${encodeURIComponent(signupEmail)}`)
+          }
+        }}
       />
     </div>
   )

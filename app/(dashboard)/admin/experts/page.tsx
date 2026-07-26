@@ -18,6 +18,7 @@ import {
   fetchPendingExperts,
   rejectExpert,
 } from "@/lib/api/user"
+import { showErrorToast } from "@/lib/showErrorToast"
 
 export default function AdminExpertsPage() {
   const searchParams = useSearchParams()
@@ -70,8 +71,8 @@ export default function AdminExpertsPage() {
       toast.success("Expert approved successfully.")
       await syncExpertLists()
     },
-    onError: () => {
-      toast.error("Unable to approve expert.")
+    onError: (err) => {
+      showErrorToast(err, "Unable to approve expert.")
     },
     onSettled: () => {
       setApprovingUserId(null)
@@ -84,8 +85,8 @@ export default function AdminExpertsPage() {
       toast.success("Expert rejected successfully.")
       await syncExpertLists()
     },
-    onError: () => {
-      toast.error("Unable to reject expert.")
+    onError: (err) => {
+      showErrorToast(err, "Unable to reject expert.")
     },
     onSettled: () => {
       setRejectingUserId(null)
@@ -94,7 +95,7 @@ export default function AdminExpertsPage() {
 
   const handleApprove = (expert: AdminUser) => {
     if (!expert.id) {
-      toast.error("Expert id is missing.")
+      showErrorToast("Expert id is missing.")
       return
     }
 
@@ -104,7 +105,7 @@ export default function AdminExpertsPage() {
 
   const handleReject = (expert: AdminUser) => {
     if (!expert.id) {
-      toast.error("Expert id is missing.")
+      showErrorToast("Expert id is missing.")
       return
     }
 

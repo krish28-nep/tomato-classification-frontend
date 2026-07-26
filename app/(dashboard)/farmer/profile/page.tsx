@@ -1,7 +1,7 @@
 // tomato-classification-frontend/app/(dashboard)/farmer/profile/page.tsx
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { FileText, MessageCircle, Calendar, Mail, Edit } from "lucide-react"

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { LayoutDashboard, Search, User, Microscope, ShieldCheck, Users, FileText, MessagesSquare } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/hooks/useAuth"
+import { Role } from "@/types/user"
 
 export function MobileNav() {
   const pathname = usePathname()
@@ -32,7 +33,7 @@ export function MobileNav() {
     { label: "Profile", href: "/admin/profile", icon: User },
   ]
 
-  const items = user?.role === "admin" ? adminItems : user?.role === "user" ? farmerItems : expertItems
+  const items = user?.role === Role.ADMIN ? adminItems : user?.role === Role.FARMER ? farmerItems : expertItems
 
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border px-2 pb-[env(safe-area-inset-bottom)]">

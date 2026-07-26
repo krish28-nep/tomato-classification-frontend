@@ -17,6 +17,7 @@ import { SignInData, signInSchema } from "@/schemas/auth.schema"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAuth } from "@/hooks/useAuth"
+import { showErrorToast } from "@/lib/showErrorToast"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -36,15 +37,15 @@ export default function LoginPage() {
       const user = await login(data.email, data.password)
 
       toast.success("Welcome back!")
-      if (user.role === "user") {
+      if (user.role === "farmer") {
         router.push("/farmer/dashboard")
       } else if (user.role === "expert") {
         router.push("/expert/dashboard")
       } else {
         router.push("/admin/dashboard")
       }
-    } catch (err: any) {
-      toast.error(err?.message || "Login failed")
+    } catch (err) {
+      showErrorToast(err, "Login failed")
     }
   }
 
@@ -89,6 +90,7 @@ export default function LoginPage() {
                 <div className="relative">
                   <Input
                     id="password"
+                    className="pr-8"
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
                     {...register("password")}
@@ -125,6 +127,9 @@ export default function LoginPage() {
                   Sign up
                 </Link>
               </p>
+              <Link href="/verify-email" className="text-sm text-primary font-medium hover:underline">
+                Verify or resend OTP
+              </Link>
             </CardFooter>
           </form>
         </Card>

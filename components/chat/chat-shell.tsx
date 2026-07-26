@@ -3,7 +3,6 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react"
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
 import { MoreVertical, SendHorizontal, Wifi, WifiOff } from "lucide-react"
-import { toast } from "sonner"
 
 import { ChatSidebar } from "@/components/chat/chat-sidebar"
 import { fetchApprovedExpertsForChat, fetchChatMessages } from "@/lib/api/chat"
@@ -18,6 +17,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
+import { showErrorToast } from "@/lib/showErrorToast"
 
 const MESSAGES_PER_PAGE = 20
 
@@ -131,7 +131,7 @@ export function ChatShell({ heading, description, receiverUserId, basePath }: Ch
     })
 
     if (!sent) {
-      toast.error("Chat is not connected yet. Please try again.")
+      showErrorToast("Chat is not connected yet. Please try again.")
       return
     }
 

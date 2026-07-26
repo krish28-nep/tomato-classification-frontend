@@ -4,7 +4,7 @@ import { useState, useRef, useCallback } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Upload, ImagePlus, X, Loader2, Leaf, AlertTriangle, Pill, Info } from "lucide-react"
+import { Upload, ImagePlus, X, Loader2, Leaf, AlertTriangle, Pill } from "lucide-react"
 import { predictDisease } from "@/lib/api/disease"
 
 export default function DiseaseDetectionPage() {

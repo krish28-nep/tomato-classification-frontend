@@ -1,10 +1,10 @@
 // tomato-classification-frontend/components/comment-form.tsx
 "use client"
 
-import { useState, useRef } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { ImagePlus, Send, X } from "lucide-react"
+import { Send } from "lucide-react"
 import { CommentCreate } from "@/schemas/comment.schema"
 
 interface CommentFormProps {

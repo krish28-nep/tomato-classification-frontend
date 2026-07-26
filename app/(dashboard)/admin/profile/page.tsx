@@ -61,8 +61,7 @@ export default function AdminProfilePage() {
           </div>
           <div>
             <p className="text-2xl font-bold text-card-foreground">
-              {user.is_verified ? "Verified" : "Pending"}
-            </p>
+              Verified            </p>
             <p className="text-xs text-muted-foreground">Administrator Status</p>
           </div>
         </CardContent>

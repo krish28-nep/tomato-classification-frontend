@@ -37,11 +37,12 @@ export default function EmailOtpModal({ open, email, onSuccess, onClose }: Props
   const [timer, setTimer] = useState(SHORT_COOLDOWN)
   const [canResend, setCanResend] = useState(false)
   const [resendCount, setResendCount] = useState(0)
+  const [isResending, setIsResending] = useState(false)
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } =
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } =
     useForm<OTPVerifyData>({
       resolver: zodResolver(otpVerifySchema),
-      defaultValues: { email },
+      defaultValues: { email, otp: "" },
     })
 
   useEffect(() => {
@@ -49,8 +50,9 @@ export default function EmailOtpModal({ open, email, onSuccess, onClose }: Props
       setTimer(SHORT_COOLDOWN)
       setCanResend(false)
       setResendCount(0)
+      reset({ email, otp: "" })
     }
-  }, [open])
+  }, [email, open, reset])
 
   useEffect(() => {
     if (timer <= 0) {
@@ -78,7 +80,10 @@ export default function EmailOtpModal({ open, email, onSuccess, onClose }: Props
   }
 
   const handleResend = async () => {
-    if (!canResend) return
+    if (!canResend || isResending) return
+
+    setIsResending(true)
+
     try {
       await resendOtp(email)
       toast.success("OTP resent successfully")
@@ -92,6 +97,8 @@ export default function EmailOtpModal({ open, email, onSuccess, onClose }: Props
       setCanResend(false)
     } catch (error) {
       showErrorToast(error)
+    } finally {
+      setIsResending(false)
     }
   }
 
@@ -123,9 +130,10 @@ export default function EmailOtpModal({ open, email, onSuccess, onClose }: Props
               <button
                 type="button"
                 onClick={handleResend}
-                className="text-primary hover:underline"
+                disabled={isResending}
+                className="text-primary hover:underline disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Resend OTP
+                {isResending ? "Resending..." : "Resend OTP"}
               </button>
             ) : (
               <span>Resend OTP in {formatTime(timer)}</span>

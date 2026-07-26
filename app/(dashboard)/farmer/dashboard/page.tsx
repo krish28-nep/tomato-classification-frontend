@@ -2,12 +2,12 @@
 "use client"
 
 import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Search, MessageSquare, Lightbulb, ArrowRight, TrendingUp, FileText, MessageCircle } from "lucide-react"
 import { PostCard } from "@/components/post-card"
-import { mockPosts, farmerTips } from "@/lib/mock-data"
+import { farmerTips } from "@/lib/mock-data"
 import { useAuth } from "@/hooks/useAuth"
 import { useQuery } from "@tanstack/react-query"
 import { Post } from "@/types/post"
@@ -52,7 +52,7 @@ export default function FarmerDashboard() {
           </Card>
         </Link>
 
-        <Link href="/farmer/community">
+        <Link href="/farmer/chat">
           <Card className="border-border/60 hover:border-primary/40 hover:shadow-md transition-all cursor-pointer group h-full">
             <CardContent className="p-5 flex flex-col gap-3">
               <div className="h-10 w-10 rounded-lg bg-accent/20 flex items-center justify-center">

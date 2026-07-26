@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 type TokenPayload = {
   user_id: number;
@@ -7,18 +7,17 @@ type TokenPayload = {
   type: string;
 };
 
-const PUBLIC_ROUTES = ["/login", "/signup", "/admin"];
+const PUBLIC_ROUTES = ["/login", "/signup", "/verify-email", "/admin"];
 
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const token = req.cookies.get("accessToken")?.value;
 
+  const isPublic = PUBLIC_ROUTES.includes(pathname);
   const isFarmerRoute = pathname.startsWith("/farmer");
   const isExpertRoute = pathname.startsWith("/expert");
-  const isAdminRoute = pathname.startsWith("/admin");
-
-  const isPublic = PUBLIC_ROUTES.includes(pathname);
+  const isAdminRoute = pathname.startsWith("/admin/");
 
   if (!token) {
     if (isPublic) {
@@ -67,7 +66,15 @@ export function proxy(req: NextRequest) {
 
     return NextResponse.next();
   } catch {
-    return NextResponse.redirect(new URL("/login", req.url));
+    if (isPublic) {
+      const response = NextResponse.next();
+      response.cookies.delete("accessToken");
+      return response;
+    }
+
+    const response = NextResponse.redirect(new URL("/login", req.url));
+    response.cookies.delete("accessToken");
+    return response;
   }
 }
 
@@ -78,5 +85,6 @@ export const config = {
     "/admin/:path*",
     "/login",
     "/signup",
+    "/verify-email",
   ],
 };

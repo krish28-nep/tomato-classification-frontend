@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Edit, Trash2, Eye, MessageCircle, ThumbsUp, Clock } from "lucide-react"
@@ -11,6 +12,17 @@ import { useAuth } from "@/hooks/useAuth"
 import { deletePost, fetchPostByUserId } from "@/lib/api/post"
 import { ImageGallery } from "@/components/image-gallery"
 import { showErrorToast } from "@/lib/showErrorToast"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 export default function KnowledgePostsPage() {
   const { user } = useAuth()
@@ -25,7 +37,7 @@ export default function KnowledgePostsPage() {
   const deleteMutation = useMutation({
     mutationFn: deletePost,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] })
+      queryClient.invalidateQueries({ queryKey: ["posts"]})
       toast.success("Post deleted successfully")
     },
     onError: (err) => showErrorToast(err)
@@ -70,15 +82,35 @@ export default function KnowledgePostsPage() {
                       <Edit className="h-3.5 w-3.5" />
                       <span className="sr-only">Edit post</span>
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                      onClick={() => handleDelete(post.id)}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      <span className="sr-only">Delete post</span>
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          <span className="sr-only">Delete post</span>
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete this post?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. The post and its related activity will be permanently removed.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-destructive text-white hover:bg-destructive/90"
+                            onClick={() => handleDelete(post.id)}
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
 
@@ -96,16 +128,18 @@ export default function KnowledgePostsPage() {
                     </span>
                     <span className="flex items-center gap-1">
                       <MessageCircle className="h-3.5 w-3.5" />
-                      {0}
+                      {post.total_comments}
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="h-3.5 w-3.5" />
                       {new Date(post.create_at).toLocaleDateString()}
                     </span>
                   </div>
-                  <Button variant="ghost" size="sm" className="text-xs text-primary gap-1">
-                    <Eye className="h-3.5 w-3.5" />
-                    View
+                  <Button asChild variant="ghost" size="sm" className="text-xs text-primary gap-1">
+                    <Link href={`/expert/post/${post.id}`}>
+                      <Eye className="h-3.5 w-3.5" />
+                      View
+                    </Link>
                   </Button>
                 </div>
               </CardContent>

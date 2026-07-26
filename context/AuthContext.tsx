@@ -2,8 +2,8 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import axios from "@/lib/axios";
-import { setAccessToken } from "@/lib/axios";
+import { usePathname } from "next/navigation";
+import axios, { refreshAccessToken } from "@/lib/axios";
 import { User } from "@/types/user";
 import { useMe } from "@/hooks/useMe";
 import { useQueryClient } from "@tanstack/react-query";
@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [bootstrapped, setBootstrapped] = useState(false);
   const me = useMe(bootstrapped)
   const queryClient = useQueryClient()
+  const pathname = usePathname()
 
   const login = async (email: string, password: string): Promise<User> => {
     const res = await axios.post("/auth/login", { email, password });
@@ -41,14 +42,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       await axios.post("/auth/logout");
     } finally {
-      setAccessToken(null);
-      queryClient.removeQueries({ queryKey: ["users", "me"] });
+      queryClient.clear();
     }
   };
 
-  const refreshAccessToken = async () => {
+  const bootstrapSession = async () => {
     try {
-      await axios.post("/auth/refresh");
+      await refreshAccessToken();
     } catch (err) {
       queryClient.removeQueries({ queryKey: ["users", "me"] });
     } finally {
@@ -57,8 +57,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    refreshAccessToken();
-  }, []);
+    if (["/login", "/signup", "/admin"].includes(pathname)) {
+      setBootstrapped(true);
+      return;
+    }
+
+    bootstrapSession();
+  }, [pathname]);
 
   return (
     <AuthContext.Provider

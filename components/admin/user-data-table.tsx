@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Card, CardContent } from "@/components/ui/card"
+import { CardContent } from "@/components/ui/card"
 import { AdminTableColumn } from "@/components/admin/table-types"
 
 type UserDataTableProps<TData> = {

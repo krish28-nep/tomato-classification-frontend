@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
   Microscope,
@@ -10,11 +10,9 @@ import {
   ArrowRight,
   TrendingUp,
   Users,
-  AlertTriangle,
   CheckCircle2,
 } from "lucide-react"
 import { PostCard } from "@/components/post-card"
-import { mockPosts } from "@/lib/mock-data"
 import { useAuth } from "@/hooks/useAuth"
 import { useQuery } from "@tanstack/react-query"
 import { Post } from "@/types/post"
@@ -22,8 +20,6 @@ import { fetchPosts } from "@/lib/api/post"
 
 export default function ExpertDashboard() {
   const { user } = useAuth()
-  const unansweredPosts = mockPosts.filter((p) => p.comments.length === 0).slice(0, 2)
-  const recentPosts = mockPosts.slice(0, 2)
 
   const { data: posts } = useQuery<Post[]>({
     queryKey: ["posts"],
@@ -119,7 +115,7 @@ export default function ExpertDashboard() {
             </div>
             <div>
               <p className="text-2xl font-bold text-card-foreground">89</p>
-              <p className="text-xs text-muted-foreground">Farmers Helped</p>
+              <p className="text-xs text-muted-foreground">Farmers Involved</p>
             </div>
           </CardContent>
         </Card>
@@ -148,20 +144,6 @@ export default function ExpertDashboard() {
       </div>
 
       <div className="max-w-3xl mx-auto w-full flex flex-col gap-6">
-        {unansweredPosts.length > 0 && (
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-foreground font-heading flex items-center gap-2">
-                <AlertTriangle className="h-4.5 w-4.5 text-accent" />
-                Needs Your Expertise
-              </h2>
-            </div>
-            {posts && posts.map((post) => (
-              <PostCard key={post.id} post={post} basePath="/expert" />
-            ))}
-          </div>
-        )}
-
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-foreground font-heading">Recent Discussions</h2>
