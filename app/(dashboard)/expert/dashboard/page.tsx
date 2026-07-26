@@ -115,7 +115,7 @@ export default function ExpertDashboard() {
             </div>
             <div>
               <p className="text-2xl font-bold text-card-foreground">89</p>
-              <p className="text-xs text-muted-foreground">Farmers Helped</p>
+              <p className="text-xs text-muted-foreground">Farmers Involved</p>
             </div>
           </CardContent>
         </Card>

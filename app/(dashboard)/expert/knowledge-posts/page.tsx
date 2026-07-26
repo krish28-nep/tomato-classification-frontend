@@ -128,7 +128,7 @@ export default function KnowledgePostsPage() {
                     </span>
                     <span className="flex items-center gap-1">
                       <MessageCircle className="h-3.5 w-3.5" />
-                      {0}
+                      {post.total_comments}
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="h-3.5 w-3.5" />

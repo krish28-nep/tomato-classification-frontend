@@ -37,7 +37,7 @@ export default function LoginPage() {
       const user = await login(data.email, data.password)
 
       toast.success("Welcome back!")
-      if (user.role === "user") {
+      if (user.role === "farmer") {
         router.push("/farmer/dashboard")
       } else if (user.role === "expert") {
         router.push("/expert/dashboard")
