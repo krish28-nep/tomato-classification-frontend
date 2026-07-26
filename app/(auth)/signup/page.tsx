@@ -151,6 +151,7 @@ export default function SignupPage() {
                 <div className="relative">
 
                   <Input
+                    className="pr-8"
                     type={showPassword ? "text" : "password"}
                     placeholder="Create password"
                     {...register("password")}
@@ -180,6 +181,7 @@ export default function SignupPage() {
                 <div className="relative">
 
                   <Input
+                    className="pr-8"
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm password"
                     {...register("confirmPassword")}
@@ -230,7 +232,13 @@ export default function SignupPage() {
         open={otpModalOpen}
         email={signupEmail}
         onSuccess={() => router.push("/login")}
-        onClose={() => setOtpModalOpen(false)}
+        onClose={() => {
+          setOtpModalOpen(false)
+
+          if (signupEmail) {
+            router.push(`/verify-email?email=${encodeURIComponent(signupEmail)}`)
+          }
+        }}
       />
     </div>
   )

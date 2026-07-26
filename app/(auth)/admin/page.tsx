@@ -89,6 +89,7 @@ export default function AdminLoginPage() {
                 <div className="relative">
                   <Input
                     id="password"
+                    className="pr-8"
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
                     {...register("password")}

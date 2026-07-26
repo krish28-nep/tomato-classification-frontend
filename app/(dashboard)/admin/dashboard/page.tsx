@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
-import { LayoutDashboard, ShieldCheck, Users, FileText, ArrowRight } from "lucide-react"
+import { ShieldCheck, Users, FileText, ArrowRight, Leaf } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
 
 export default function AdminDashboardPage() {
@@ -76,23 +76,23 @@ export default function AdminDashboardPage() {
         </Card>
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
+            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <Leaf className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-card-foreground">0</p>
+              <p className="text-xs text-muted-foreground">Farmer</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 flex items-center gap-3">
             <div className="h-9 w-9 rounded-lg bg-secondary flex items-center justify-center shrink-0">
               <FileText className="h-4 w-4 text-secondary-foreground" />
             </div>
             <div>
               <p className="text-2xl font-bold text-card-foreground">0</p>
               <p className="text-xs text-muted-foreground">Posts</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <LayoutDashboard className="h-4 w-4 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-card-foreground">0</p>
-              <p className="text-xs text-muted-foreground">Reports</p>
             </div>
           </CardContent>
         </Card>

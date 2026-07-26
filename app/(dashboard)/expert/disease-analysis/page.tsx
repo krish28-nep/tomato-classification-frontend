@@ -4,13 +4,12 @@ import { useState, useRef, useCallback } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Upload, ImagePlus, X, Loader2, Microscope, AlertTriangle, Pill, Info } from "lucide-react"
+import { Upload, ImagePlus, X, Loader2, Microscope, AlertTriangle, Pill } from "lucide-react"
 import { predictDisease } from "@/lib/api/disease"
 
 export default function DiseaseAnalysisPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [notes, setNotes] = useState("")
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -74,7 +73,6 @@ export default function DiseaseAnalysisPage() {
   const handleClear = () => {
     setImagePreview(null)
     setSelectedFile(null)
-    setNotes("")
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
     }

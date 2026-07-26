@@ -30,7 +30,7 @@ export function ImageGallery({ title, images }: ImageGalleryProps) {
             alt={`${title} ${index + 1}`}
             fill
             className="object-cover"
-            quality={100} 
+            quality={75}
             sizes="
               (max-width: 640px) 100vw, 
               (max-width: 1024px) 50vw, 
