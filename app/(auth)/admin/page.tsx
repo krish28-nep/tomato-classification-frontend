@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label"
 import { useAuth } from "@/hooks/useAuth"
 import { SignInData, signInSchema } from "@/schemas/auth.schema"
 import { Role } from "@/types/user"
+import { showErrorToast } from "@/lib/showErrorToast"
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -37,14 +38,14 @@ export default function AdminLoginPage() {
 
       if (user.role !== Role.ADMIN) {
         await logout()
-        toast.error("This portal is only for administrators.")
+        showErrorToast("This portal is only for administrators.")
         return
       }
 
       toast.success("Welcome, admin!")
       router.push("/admin/dashboard")
-    } catch (err: any) {
-      toast.error(err?.message || "Admin login failed")
+    } catch (err) {
+      showErrorToast(err, "Admin login failed")
     }
   }
 

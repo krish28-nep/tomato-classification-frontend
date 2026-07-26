@@ -1,47 +1,40 @@
-// tomato-classification-frontend/lib/showErrorToast.ts
+import axios from "axios"
 import { toast } from "sonner"
 
 type ApiErrorResponse = {
-  success?: boolean
-  message?: string
-  error?: string
-  statusCode?: number
+  success: boolean
+  data: unknown
+  message: string
+  pagination: unknown
 }
 
-const isApiErrorResponse = (obj: unknown): obj is ApiErrorResponse => {
+const isApiErrorResponse = (value: unknown): value is ApiErrorResponse => {
   return (
-    typeof obj === "object" &&
-    obj !== null &&
-    "message" in obj
+    typeof value === "object" &&
+    value !== null &&
+    "message" in value &&
+    typeof value.message === "string"
   )
+}
+
+export const getErrorMessage = (
+  error: unknown,
+  fallbackMessage = "Something went wrong. Please try again"
+) => {
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data
+
+    if (isApiErrorResponse(data)) {
+      return data.message || fallbackMessage
+    }
+  }
+
+  return fallbackMessage
 }
 
 export const showErrorToast = (
   error: unknown,
   fallbackMessage = "Something went wrong. Please try again"
 ) => {
-
-  let message = fallbackMessage
-
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "response" in error
-  ) {
-    const response = (error as any).response
-
-    if (response?.data && isApiErrorResponse(response.data)) {
-      message = response.data.message || fallbackMessage
-    }
-  }
-
-  else if (error instanceof Error) {
-    message = error.message
-  }
-
-  else if (typeof error === "string") {
-    message = error
-  }
-
-  toast.error(message)
+  toast.error(getErrorMessage(error, fallbackMessage))
 }

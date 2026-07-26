@@ -20,6 +20,7 @@ import { SignUpData, signUpSchema } from "@/schemas/auth.schema"
 import axios from "@/lib/axios"
 import { Role } from "@/types/user"
 import EmailOtpModal from "@/components/auth/email-otp-modal"
+import { showErrorToast } from "@/lib/showErrorToast"
 
 export default function SignupPage() {
 
@@ -53,7 +54,7 @@ export default function SignupPage() {
       reset()
 
     } catch (err) {
-      toast.error("Signup failed")
+      showErrorToast(err, "Signup failed")
     }
   }
 

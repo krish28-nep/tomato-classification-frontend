@@ -4,11 +4,8 @@ import { useState, useRef, useCallback } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
 import { Upload, ImagePlus, X, Loader2, Microscope, AlertTriangle, Pill, Info } from "lucide-react"
 import { predictDisease } from "@/lib/api/disease"
-import { toast } from "sonner"
 
 export default function DiseaseAnalysisPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null)

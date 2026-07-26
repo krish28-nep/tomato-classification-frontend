@@ -17,6 +17,7 @@ import { SignInData, signInSchema } from "@/schemas/auth.schema"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAuth } from "@/hooks/useAuth"
+import { showErrorToast } from "@/lib/showErrorToast"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -43,8 +44,8 @@ export default function LoginPage() {
       } else {
         router.push("/admin/dashboard")
       }
-    } catch (err: any) {
-      toast.error(err?.message || "Login failed")
+    } catch (err) {
+      showErrorToast(err, "Login failed")
     }
   }
 
