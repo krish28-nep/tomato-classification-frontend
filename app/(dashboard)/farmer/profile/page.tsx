@@ -39,10 +39,6 @@ export default function FarmerProfilePage() {
     <div className="flex flex-col gap-6 max-w-2xl mx-auto">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-foreground font-heading">My Profile</h1>
-        <Button variant="outline" size="sm" className="gap-2">
-          <Edit className="h-4 w-4" />
-          Edit Profile
-        </Button>
       </div>
 
       <Card>

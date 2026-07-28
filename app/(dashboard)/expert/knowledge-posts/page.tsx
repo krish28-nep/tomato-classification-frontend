@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Edit, Trash2, Eye, MessageCircle, ThumbsUp, Clock } from "lucide-react"
 import { CreatePostModal } from "@/components/create-post-modal"
+import { EditPostModal } from "@/components/edit-post-modal"
 import { toast } from "sonner"
 import { PaginatedPostsResponse } from "@/types/post"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
@@ -79,10 +80,12 @@ export default function KnowledgePostsPage() {
                     <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{post.content}</p>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
-                      <Edit className="h-3.5 w-3.5" />
-                      <span className="sr-only">Edit post</span>
-                    </Button>
+                    <EditPostModal post={post}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
+                        <Edit className="h-3.5 w-3.5" />
+                        <span className="sr-only">Edit post</span>
+                      </Button>
+                    </EditPostModal>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button
