@@ -18,7 +18,7 @@ export const createPostSchema = z.object({
   image: z.file().optional()
 });
 
-export const updatePostSchema = createPostSchema.partial()
+export const updatePostSchema = createPostSchema.omit({ image: true }).partial()
 
 export type PostCreate = z.infer<typeof createPostSchema>;
 export type PostUpdate = z.infer<typeof updatePostSchema>;

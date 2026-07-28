@@ -1,6 +1,7 @@
 // tomato-classification-frontend/lib/api/post.ts
 import axios from "../axios"
-import { PaginatedPostsResponse } from "@/types/post"
+import type { PaginatedPostsResponse } from "@/types/post"
+import type { PostUpdate } from "@/schemas/post.schema"
 
 type FetchPostsPageParams = {
   limit?: number
@@ -71,6 +72,11 @@ export const addPost = async (dataToSend: FormData) => {
 
 export const deletePost = async (id: number) => {
   const { data } = await axios.delete(`/post/${id}`)
+  return data
+}
+
+export const updatePost = async ({ id, dataToSend }: { id: number, dataToSend: PostUpdate }) => {
+  const { data } = await axios.patch(`/post/${id}`, dataToSend)
   return data
 }
 
