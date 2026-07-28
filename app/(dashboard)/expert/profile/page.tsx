@@ -6,16 +6,26 @@ import { Button } from "@/components/ui/button"
 import { FileText, MessageCircle, Calendar, Mail, Edit } from "lucide-react"
 import { UserBadge } from "@/components/user-badge"
 import { useAuth } from "@/hooks/useAuth"
+import { useQuery } from "@tanstack/react-query"
+import { ExpertDashboardSummary } from "@/types/dashboardSummary"
+import { fetchDashboardSummary } from "@/lib/api/dashboardSummary"
 
 export default function ExpertProfilePage() {
   const { user } = useAuth()
+  
+  const { data: dashboardSummary } = useQuery<ExpertDashboardSummary>({
+    queryKey: ["dashboard-summary", user?.id],
+    queryFn: () => fetchDashboardSummary<ExpertDashboardSummary>(),
+    enabled: !!user?.id,
+  })
+
   if (!user) return null
 
-  const data = {
-    postCounts: "12",
-    dateJoined: new Date(Date.now()),
-    commentsCount: "14"
-  }
+  const fallbackJoinedDate = new Date()
+  fallbackJoinedDate.setDate(fallbackJoinedDate.getDate() - 1)
+
+  const joinedDate = (user.created_at ? new Date(user.created_at) : fallbackJoinedDate)
+    .toLocaleDateString("en-US", { month: "long", year: "numeric" })
 
   const initials = user.username
     .split(" ")
@@ -52,7 +62,7 @@ export default function ExpertProfilePage() {
                 </span>
                 <span className="flex items-center gap-1">
                   <Calendar className="h-3.5 w-3.5" />
-                  Joined {new Date(data.dateJoined).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                  Joined {joinedDate}
                 </span>
               </div>
             </div>
@@ -67,7 +77,7 @@ export default function ExpertProfilePage() {
               <FileText className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-card-foreground">{data.postCounts}</p>
+              <p className="text-2xl font-bold text-card-foreground">{dashboardSummary?.total_posts ?? 0}</p>
               <p className="text-xs text-muted-foreground">Posts Created</p>
             </div>
           </CardContent>
@@ -78,7 +88,7 @@ export default function ExpertProfilePage() {
               <MessageCircle className="h-5 w-5 text-accent-foreground" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-card-foreground">{data.commentsCount}</p>
+              <p className="text-2xl font-bold text-card-foreground">{dashboardSummary?.total_comments ?? 0}</p>
               <p className="text-xs text-muted-foreground">Comments Made</p>
             </div>
           </CardContent>

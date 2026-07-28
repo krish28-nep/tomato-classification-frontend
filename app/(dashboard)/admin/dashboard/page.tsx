@@ -2,11 +2,21 @@
 
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
-import { ShieldCheck, Users, FileText, ArrowRight, Leaf } from "lucide-react"
+import { ShieldCheck, Users, FileText, ArrowRight, Leaf, MessageCircle } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
+import { AdminDashboardSummary } from "@/types/dashboardSummary"
+import { useQuery } from "@tanstack/react-query"
+import { fetchDashboardSummary } from "@/lib/api/dashboardSummary"
+
 
 export default function AdminDashboardPage() {
   const { user } = useAuth()
+
+  const { data: dashboardSummary } = useQuery<AdminDashboardSummary>({
+    queryKey: ["dashboard-summary", user?.id],
+    queryFn: () => fetchDashboardSummary<AdminDashboardSummary>(),
+    enabled: !!user?.id,
+  })
 
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto">
@@ -51,14 +61,14 @@ export default function AdminDashboardPage() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
             <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
               <Users className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-card-foreground">0</p>
+              <p className="text-2xl font-bold text-card-foreground">{dashboardSummary?.total_users ?? 0}</p>
               <p className="text-xs text-muted-foreground">Users</p>
             </div>
           </CardContent>
@@ -69,7 +79,7 @@ export default function AdminDashboardPage() {
               <ShieldCheck className="h-4 w-4 text-accent-foreground" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-card-foreground">0</p>
+              <p className="text-2xl font-bold text-card-foreground">{dashboardSummary?.total_experts ?? 0}</p>
               <p className="text-xs text-muted-foreground">Experts</p>
             </div>
           </CardContent>
@@ -80,8 +90,8 @@ export default function AdminDashboardPage() {
               <Leaf className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-card-foreground">0</p>
-              <p className="text-xs text-muted-foreground">Farmer</p>
+              <p className="text-2xl font-bold text-card-foreground">{dashboardSummary?.total_farmers ?? 0}</p>
+              <p className="text-xs text-muted-foreground">Farmers</p>
             </div>
           </CardContent>
         </Card>
@@ -91,8 +101,19 @@ export default function AdminDashboardPage() {
               <FileText className="h-4 w-4 text-secondary-foreground" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-card-foreground">0</p>
+              <p className="text-2xl font-bold text-card-foreground">{dashboardSummary?.total_posts ?? 0}</p>
               <p className="text-xs text-muted-foreground">Posts</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="h-9 w-9 rounded-lg bg-accent/20 flex items-center justify-center shrink-0">
+              <MessageCircle className="h-4 w-4 text-accent-foreground" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-card-foreground">{dashboardSummary?.total_comments ?? 0}</p>
+              <p className="text-xs text-muted-foreground">Comments</p>
             </div>
           </CardContent>
         </Card>

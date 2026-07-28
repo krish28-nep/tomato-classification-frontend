@@ -6,6 +6,21 @@ export type ChatExpert = {
   online?: boolean
 }
 
+export type ChatConversation = {
+  user_id: number
+  username: string
+  last_message: string
+  last_message_at: string
+}
+
+export type ChatReceiver = {
+  id: number
+  username: string
+  email?: string
+  role?: string
+  online?: boolean
+}
+
 export type ChatMessage = {
   message: string
   sender_id: number

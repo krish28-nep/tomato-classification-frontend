@@ -5,19 +5,27 @@ import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Search, MessageSquare, Lightbulb, ArrowRight, TrendingUp, FileText, MessageCircle } from "lucide-react"
+import { Search, MessageSquare, Lightbulb, ArrowRight, FileText, MessageCircle } from "lucide-react"
 import { PostCard } from "@/components/post-card"
 import { farmerTips } from "@/lib/mock-data"
 import { useAuth } from "@/hooks/useAuth"
 import { useQuery } from "@tanstack/react-query"
 import { Post } from "@/types/post"
 import { fetchPosts } from "@/lib/api/post"
+import { FarmerDashboardSummary } from "@/types/dashboardSummary"
+import { fetchDashboardSummary } from "@/lib/api/dashboardSummary"
 
 export default function FarmerDashboard() {
   const { user } = useAuth()
   const { data } = useQuery<Post[]>({
     queryKey: ["posts"],
     queryFn: fetchPosts
+  })
+
+  const { data: dashboardSummary } = useQuery<FarmerDashboardSummary>({
+    queryKey: ["dashboard-summary", user?.id],
+    queryFn: () => fetchDashboardSummary<FarmerDashboardSummary>(),
+    enabled: !!user?.id,
   })
 
   const posts = data ?? []
@@ -88,15 +96,15 @@ export default function FarmerDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
             <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <TrendingUp className="h-4 w-4 text-primary" />
+              <MessageSquare className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-card-foreground">3</p>
-              <p className="text-xs text-muted-foreground">Scans This Week</p>
+              <p className="text-2xl font-bold text-card-foreground">{posts.length}</p>
+              <p className="text-xs text-muted-foreground">Recent Discussions</p>
             </div>
           </CardContent>
         </Card>
@@ -106,7 +114,7 @@ export default function FarmerDashboard() {
               <FileText className="h-4 w-4 text-accent-foreground" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-card-foreground">{12}</p>
+              <p className="text-2xl font-bold text-card-foreground">{dashboardSummary?.total_posts ?? 0}</p>
               <p className="text-xs text-muted-foreground">My Posts</p>
             </div>
           </CardContent>
@@ -117,19 +125,8 @@ export default function FarmerDashboard() {
               <MessageCircle className="h-4 w-4 text-secondary-foreground" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-card-foreground">{34}</p>
+              <p className="text-2xl font-bold text-card-foreground">{dashboardSummary?.total_comments ?? 0}</p>
               <p className="text-xs text-muted-foreground">Comments</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <Search className="h-4 w-4 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-card-foreground">2</p>
-              <p className="text-xs text-muted-foreground">Diseases Found</p>
             </div>
           </CardContent>
         </Card>

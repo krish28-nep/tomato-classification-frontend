@@ -38,6 +38,7 @@ export default function MyPostsPage() {
     mutationFn: deletePost,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-summary", user?.id] });
       toast.success("Post deleted successfully")
     },
     onError: (err) => showErrorToast(err)
@@ -119,16 +120,6 @@ export default function MyPostsPage() {
                     <ImageGallery title={post.title} images={[post.image]} />
                   </div>
                 )}
-                {/**/}
-                {/* {post.tags.length > 0 && ( */}
-                {/*   <div className="flex flex-wrap gap-1.5 mb-3"> */}
-                {/*     {post.tags.map((tag) => ( */}
-                {/*       <Badge key={tag} variant="outline" className="text-xs font-normal text-muted-foreground"> */}
-                {/*         {tag} */}
-                {/*       </Badge> */}
-                {/*     ))} */}
-                {/*   </div> */}
-                {/* )} */}
 
                 <div className="flex items-center justify-between pt-2 border-t border-border/40">
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
@@ -138,7 +129,7 @@ export default function MyPostsPage() {
                     </span>
                     <span className="flex items-center gap-1">
                       <MessageCircle className="h-3.5 w-3.5" />
-                      {0}
+                      {post.total_comments}
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="h-3.5 w-3.5" />

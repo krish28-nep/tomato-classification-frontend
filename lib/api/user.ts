@@ -8,6 +8,7 @@ export type AdminUser = {
     email: string
     role: "user" | "expert" | "admin"
     online?: boolean
+    created_at?: string
 }
 
 export const verifyOtp = async (dataToSend: OTPVerifyData) => {

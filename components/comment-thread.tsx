@@ -11,6 +11,7 @@ import { CommentForm } from "./comment-form"
 import { fetchRepliesByCommentId, replyComment } from "@/lib/api/comment"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { showErrorToast } from "@/lib/showErrorToast"
+import { useAuth } from "@/hooks/useAuth"
 
 interface CommentThreadProps {
   comments: Comment[]
@@ -35,6 +36,7 @@ export function CommentThread({ comments, postId, depth = 0 }: CommentThreadProp
 
 function CommentItem({ comment, postId, depth }: { comment: Comment; postId: number; depth: number }) {
   const queryClient = useQueryClient()
+  const { user } = useAuth()
   const [isReplying, setIsReplying] = useState(false)
   const [showReplies, setShowReplies] = useState(false)
 
@@ -58,6 +60,7 @@ function CommentItem({ comment, postId, depth }: { comment: Comment; postId: num
         queryKey: ["comments", postId, variables.commentId, "replies"],
       })
       await queryClient.invalidateQueries({ queryKey: ["comments"], exact: false })
+      await queryClient.invalidateQueries({ queryKey: ["dashboard-summary", user?.id] })
     },
     onError: (err) => showErrorToast(err),
   })
