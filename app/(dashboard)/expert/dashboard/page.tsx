@@ -8,15 +8,16 @@ import {
   MessageSquare,
   BookOpen,
   ArrowRight,
-  TrendingUp,
   Users,
-  CheckCircle2,
+  MessageCircle,
 } from "lucide-react"
 import { PostCard } from "@/components/post-card"
 import { useAuth } from "@/hooks/useAuth"
 import { useQuery } from "@tanstack/react-query"
 import { Post } from "@/types/post"
 import { fetchPosts } from "@/lib/api/post"
+import { ExpertDashboardSummary } from "@/types/dashboardSummary"
+import { fetchDashboardSummary } from "@/lib/api/dashboardSummary"
 
 export default function ExpertDashboard() {
   const { user } = useAuth()
@@ -26,9 +27,11 @@ export default function ExpertDashboard() {
     queryFn: fetchPosts
   })
 
-  const data = {
-    postCount: "12",
-  }
+  const { data: dashboardSummary } = useQuery<ExpertDashboardSummary>({
+    queryKey: ["dashboard-summary", user?.id],
+    queryFn: () => fetchDashboardSummary<ExpertDashboardSummary>(),
+    enabled: !!user?.id,
+  })
 
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto">
@@ -96,25 +99,14 @@ export default function ExpertDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <TrendingUp className="h-4 w-4 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-card-foreground">156</p>
-              <p className="text-xs text-muted-foreground">Cases Analyzed</p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
             <div className="h-9 w-9 rounded-lg bg-accent/20 flex items-center justify-center shrink-0">
               <Users className="h-4 w-4 text-accent-foreground" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-card-foreground">89</p>
+              <p className="text-2xl font-bold text-card-foreground">{dashboardSummary?.total_farmers ?? 0}</p>
               <p className="text-xs text-muted-foreground">Farmers Involved</p>
             </div>
           </CardContent>
@@ -125,7 +117,7 @@ export default function ExpertDashboard() {
               <BookOpen className="h-4 w-4 text-secondary-foreground" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-card-foreground">{data?.postCount || 28}</p>
+              <p className="text-2xl font-bold text-card-foreground">{dashboardSummary?.total_posts ?? 0}</p>
               <p className="text-xs text-muted-foreground">Knowledge Posts</p>
             </div>
           </CardContent>
@@ -133,11 +125,11 @@ export default function ExpertDashboard() {
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
             <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="h-4 w-4 text-primary" />
+              <MessageCircle className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-card-foreground">{89}</p>
-              <p className="text-xs text-muted-foreground">Answers Given</p>
+              <p className="text-2xl font-bold text-card-foreground">{dashboardSummary?.total_comments ?? 0}</p>
+              <p className="text-xs text-muted-foreground">Comments Made</p>
             </div>
           </CardContent>
         </Card>

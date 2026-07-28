@@ -79,6 +79,7 @@ export default function FarmerPostDetail({
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["posts"], exact: false });
       await queryClient.invalidateQueries({ queryKey: ["comments"], exact: false });
+      await queryClient.invalidateQueries({ queryKey: ["dashboard-summary", user?.id] });
 
       toast.success("Your have comment successfully");
     },

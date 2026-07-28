@@ -34,7 +34,8 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const socketRef = useRef<WebSocket | null>(null)
   const pathnameRef = useRef(pathname)
   const chatPathRef = useRef<string | null>(null)
-  const messageBufferRef = useRef<Map<number, SocketChatMessage[]>>(new Map())
+  const messageBufferRef = useRef<Map<string, SocketChatMessage[]>>(new Map())
+  const previousUserIdRef = useRef<number | null>(null)
   const listenersRef = useRef<{
     message: Set<SocketListener<"message">>
   }>({
@@ -44,6 +45,15 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     pathnameRef.current = pathname
   }, [pathname])
+
+  useEffect(() => {
+    const currentUserId = isAuthenticated && user?.id ? user.id : null
+
+    if (previousUserIdRef.current !== currentUserId) {
+      messageBufferRef.current.clear()
+      previousUserIdRef.current = currentUserId
+    }
+  }, [isAuthenticated, user?.id])
 
   useEffect(() => {
     if (user?.role === Role.FARMER) {
@@ -125,16 +135,19 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       messaged_at: new Date().toISOString(),
     }
 
-    const existingMessages = messageBufferRef.current.get(payload.to) ?? []
-    messageBufferRef.current.set(payload.to, [...existingMessages, optimisticMessage].slice(-20))
+    const bufferKey = `${user.id}:${payload.to}`
+    const existingMessages = messageBufferRef.current.get(bufferKey) ?? []
+    messageBufferRef.current.set(bufferKey, [...existingMessages, optimisticMessage].slice(-20))
     emit("message", optimisticMessage)
 
     return true
   }, [emit, user?.id])
 
   const getBufferedMessages = useCallback((roomUserId: number) => {
-    return messageBufferRef.current.get(roomUserId) ?? []
-  }, [])
+    if (!user?.id) return []
+
+    return messageBufferRef.current.get(`${user.id}:${roomUserId}`) ?? []
+  }, [user?.id])
 
   useEffect(() => {
     if (!isAuthenticated || !user?.id) {
@@ -171,8 +184,9 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
           message.sender_id === user.id ? message.receiver_id : message.sender_id
 
         if (roomUserId > 0) {
-          const existingMessages = messageBufferRef.current.get(roomUserId) ?? []
-          messageBufferRef.current.set(roomUserId, [...existingMessages, message].slice(-20))
+          const bufferKey = `${user.id}:${roomUserId}`
+          const existingMessages = messageBufferRef.current.get(bufferKey) ?? []
+          messageBufferRef.current.set(bufferKey, [...existingMessages, message].slice(-20))
         }
       }
 

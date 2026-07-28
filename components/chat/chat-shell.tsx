@@ -5,10 +5,15 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
 import { MoreVertical, SendHorizontal, Wifi, WifiOff } from "lucide-react"
 
 import { ChatSidebar } from "@/components/chat/chat-sidebar"
-import { fetchApprovedExpertsForChat, fetchChatMessages } from "@/lib/api/chat"
+import {
+  fetchApprovedExpertsForChat,
+  fetchChatConversations,
+  fetchChatMessages,
+  fetchChatReceiver,
+} from "@/lib/api/chat"
 import { useAuth } from "@/hooks/useAuth"
 import { useSocket } from "@/hooks/useSocket"
-import { ChatMessage } from "@/types/chat"
+import { ChatReceiver, ChatMessage } from "@/types/chat"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -42,20 +47,54 @@ export function ChatShell({ heading, description, receiverUserId, basePath }: Ch
   const [draft, setDraft] = useState("")
   const [liveMessages, setLiveMessages] = useState<ChatMessage[]>([])
   const bottomRef = useRef<HTMLDivElement | null>(null)
+  const conversationsQueryKey = useMemo(
+    () => ["chat", user?.id, "conversations"] as const,
+    [user?.id]
+  )
 
   const {
     data: experts = [],
-    isLoading: isExpertsLoading,
-    isError: isExpertsError,
   } = useQuery({
-    queryKey: ["chat", "experts"],
+    queryKey: ["chat", user?.id, "experts"],
     queryFn: fetchApprovedExpertsForChat,
+    enabled: Boolean(user?.id),
   })
 
-  const selectedExpert = useMemo(
-    () => experts.find((expert) => expert.id === receiverUserId) ?? null,
-    [receiverUserId, experts]
-  )
+  const {
+    data: conversations = [],
+  } = useQuery({
+    queryKey: conversationsQueryKey,
+    queryFn: fetchChatConversations,
+    enabled: Boolean(user?.id),
+  })
+
+  const {
+    data: fetchedReceiver,
+    isLoading: isReceiverLoading,
+    isError: isReceiverError,
+  } = useQuery({
+    queryKey: ["chat", "receiver", receiverUserId],
+    queryFn: () => fetchChatReceiver(receiverUserId),
+    enabled: Boolean(receiverUserId),
+    retry: false,
+  })
+
+  const selectedReceiver = useMemo<ChatReceiver | null>(() => {
+    if (fetchedReceiver) return fetchedReceiver
+
+    const expert = experts.find((item) => item.id === receiverUserId)
+    if (expert) return expert
+
+    const conversation = conversations.find((item) => item.user_id === receiverUserId)
+    if (conversation) {
+      return {
+        id: conversation.user_id,
+        username: conversation.username,
+      }
+    }
+
+    return null
+  }, [conversations, experts, fetchedReceiver, receiverUserId])
 
   const {
     data,
@@ -78,7 +117,11 @@ export function ChatShell({ heading, description, receiverUserId, basePath }: Ch
 
   useEffect(() => {
     setLiveMessages(getBufferedMessages(receiverUserId))
-  }, [getBufferedMessages, receiverUserId])
+  }, [getBufferedMessages, receiverUserId, user?.id])
+
+  useEffect(() => {
+    setDraft("")
+  }, [user?.id, receiverUserId])
 
   useEffect(() => {
     return on("message", (message) => {
@@ -153,12 +196,12 @@ export function ChatShell({ heading, description, receiverUserId, basePath }: Ch
         <Card className="flex min-h-[720px] overflow-hidden rounded-2xl border-border/60">
           <div className="flex min-w-0 flex-1 flex-col">
             <header className="flex items-center justify-between gap-3 border-b border-border/60 bg-card px-4 py-3">
-              {isExpertsLoading ? (
+              {isReceiverLoading ? (
                 <div className="flex items-center gap-3">
                   <Spinner className="h-5 w-5" />
                   <p className="text-sm text-muted-foreground">Loading chat...</p>
                 </div>
-              ) : isExpertsError || !selectedExpert ? (
+              ) : !selectedReceiver ? (
                 <div>
                   <h2 className="font-semibold text-card-foreground">Chat room not found</h2>
                   <p className="text-sm text-muted-foreground">We couldn&apos;t find this receiver.</p>
@@ -168,13 +211,13 @@ export function ChatShell({ heading, description, receiverUserId, basePath }: Ch
                   <div className="flex min-w-0 items-center gap-3">
                     <Avatar className="h-11 w-11 border border-primary/20">
                       <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                        {getInitials(selectedExpert.username)}
+                        {getInitials(selectedReceiver.username)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0">
-                      <h2 className="font-semibold text-card-foreground line-clamp-1">{selectedExpert.username}</h2>
+                      <h2 className="font-semibold text-card-foreground line-clamp-1">{selectedReceiver.username}</h2>
                       <p className="text-xs text-muted-foreground line-clamp-1">
-                        {selectedExpert.online ? "Online" : selectedExpert.email}
+                        {selectedReceiver.online ? "Online" : selectedReceiver.email ?? selectedReceiver.role ?? "Chat participant"}
                       </p>
                     </div>
                   </div>
@@ -204,7 +247,7 @@ export function ChatShell({ heading, description, receiverUserId, basePath }: Ch
                   variant="outline"
                   size="sm"
                   onClick={() => void fetchNextPage()}
-                  disabled={!hasNextPage || isFetchingNextPage || !selectedExpert}
+                  disabled={!hasNextPage || isFetchingNextPage || !selectedReceiver}
                 >
                   {isFetchingNextPage ? "Loading..." : hasNextPage ? "Load older messages" : "No older messages"}
                 </Button>
@@ -249,13 +292,13 @@ export function ChatShell({ heading, description, receiverUserId, basePath }: Ch
                             <div className="flex max-w-[82%] items-start gap-2">
                               <Avatar className="mt-0.5 h-8 w-8 border border-border/60">
                                 <AvatarFallback className="bg-primary/10 text-primary text-[11px]">
-                                  {selectedExpert ? getInitials(selectedExpert.username) : "U"}
+                                  {selectedReceiver ? getInitials(selectedReceiver.username) : "U"}
                                 </AvatarFallback>
                               </Avatar>
                               <div className="min-w-0 rounded-2xl rounded-tl-md bg-card px-3.5 py-2.5 text-card-foreground shadow-sm ring-1 ring-border/60">
                                 <div className="mb-0.5 flex items-center gap-2">
                                   <p className="text-xs font-semibold text-primary line-clamp-1">
-                                    {selectedExpert?.username ?? "User"}
+                                    {selectedReceiver?.username ?? "User"}
                                   </p>
                                 </div>
                                 <div className="flex items-end gap-3">
@@ -298,15 +341,15 @@ export function ChatShell({ heading, description, receiverUserId, basePath }: Ch
                         event.currentTarget.form?.requestSubmit()
                       }
                     }}
-                    placeholder={selectedExpert ? `Message ${selectedExpert.username}` : "Message"}
+                    placeholder={selectedReceiver ? `Message ${selectedReceiver.username}` : "Message"}
                     className="max-h-32 min-h-11 resize-none rounded-2xl bg-muted/50"
-                    disabled={!selectedExpert}
+                    disabled={!selectedReceiver}
                   />
                   <Button
                     type="submit"
                     size="icon"
                     className="h-11 w-11 shrink-0 rounded-full"
-                    disabled={draft.trim() === "" || socketState !== "connected" || !selectedExpert}
+                    disabled={draft.trim() === "" || socketState !== "connected" || !selectedReceiver}
                   >
                     <SendHorizontal className="h-4 w-4" />
                   </Button>

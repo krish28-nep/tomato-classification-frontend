@@ -38,6 +38,7 @@ export default function KnowledgePostsPage() {
     mutationFn: deletePost,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"]})
+      queryClient.invalidateQueries({ queryKey: ["dashboard-summary", user?.id] })
       toast.success("Post deleted successfully")
     },
     onError: (err) => showErrorToast(err)

@@ -5,6 +5,7 @@ export type User = {
     email: string
     role: Role
     is_verified: boolean
+    created_at?: string
 }
 
 export enum Role {

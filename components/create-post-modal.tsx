@@ -24,8 +24,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addPost } from "@/lib/api/post";
 import { showErrorToast } from "@/lib/showErrorToast";
+import { useAuth } from "@/hooks/useAuth";
 
 export function CreatePostModal() {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -46,6 +48,7 @@ export function CreatePostModal() {
     mutationFn: addPost,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["posts"] });
+      await queryClient.invalidateQueries({ queryKey: ["dashboard-summary", user?.id] });
 
       toast.success("Post created successfully");
 

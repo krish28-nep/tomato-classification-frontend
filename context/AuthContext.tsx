@@ -33,7 +33,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const user = res.data.data.user;
 
+    queryClient.removeQueries({ queryKey: ["chat"] });
+    queryClient.removeQueries({ queryKey: ["dashboard-summary"] });
     queryClient.setQueryData(["users", "me"], user);
+    await queryClient.invalidateQueries({ queryKey: ["dashboard-summary", user.id] });
 
     return user;
   };

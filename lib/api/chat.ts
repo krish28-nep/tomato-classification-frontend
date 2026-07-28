@@ -1,5 +1,5 @@
 import axios from "@/lib/axios"
-import { ChatExpert, PaginatedChatMessages } from "@/types/chat"
+import { ChatConversation, ChatExpert, ChatReceiver, PaginatedChatMessages } from "@/types/chat"
 
 type ChatApiResponse = {
   data?: {
@@ -18,6 +18,16 @@ type ChatApiResponse = {
 export const fetchApprovedExpertsForChat = async (): Promise<ChatExpert[]> => {
   const { data } = await axios.get("/user/expert")
   return data.data ?? []
+}
+
+export const fetchChatConversations = async (): Promise<ChatConversation[]> => {
+  const { data } = await axios.get("/chat/conversation")
+  return data.data ?? []
+}
+
+export const fetchChatReceiver = async (userId: number): Promise<ChatReceiver> => {
+  const { data } = await axios.get(`/user/${userId}`)
+  return data.data
 }
 
 export const fetchChatMessages = async ({

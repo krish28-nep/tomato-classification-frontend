@@ -78,6 +78,7 @@ export default function ExpertPostDetail({
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["posts"], exact: false })
       await queryClient.invalidateQueries({ queryKey: ["comments"], exact: false })
+      await queryClient.invalidateQueries({ queryKey: ["dashboard-summary", user?.id] })
 
       toast.success("Your response has been added successfully")
     },
