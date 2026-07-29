@@ -1,13 +1,14 @@
 "use client"
 
 import { useState, useRef, useCallback } from "react"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Upload, ImagePlus, X, Loader2, Microscope, AlertTriangle, Pill } from "lucide-react"
 import { predictDisease } from "@/lib/api/disease"
 
 export default function DiseaseAnalysisPage() {
+  const queryClient = useQueryClient()
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
@@ -67,7 +68,11 @@ export default function DiseaseAnalysisPage() {
 
   const handleAnalyze = async () => {
     if (!selectedFile) return
-    await refetch()
+    const response = await refetch()
+
+    if (response.data?.success) {
+      await queryClient.invalidateQueries({ queryKey: ["dashboard-summary"] })
+    }
   }
 
   const handleClear = () => {
@@ -80,6 +85,13 @@ export default function DiseaseAnalysisPage() {
 
   const result = predictionResponse?.data
   const formattedPredictedClass = result?.predicted_class.replaceAll("_", " ") ?? ""
+  const isUnknownPrediction = result?.predicted_class.toLowerCase().includes("unknown") ?? false
+  const cause =
+    result?.cause ?? "The uploaded image could not be matched confidently with a known tomato disease."
+  const prescriptions = result?.prescriptions ?? [
+    "Try scanning a clearer tomato leaf image with good lighting.",
+    "If symptoms are visible, review the image manually or consult another expert.",
+  ]
   const errorMessage =
     error instanceof Error ? error.message : "We couldn't analyze the image right now. Please try again."
 
@@ -185,36 +197,48 @@ export default function DiseaseAnalysisPage() {
               </CardHeader>
             </Card>
 
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-semibold flex items-center gap-2 text-card-foreground">
-                  <AlertTriangle className="h-4 w-4 text-accent" />
-                  Cause
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground leading-relaxed">{result.cause}</p>
-              </CardContent>
-            </Card>
+            {isUnknownPrediction ? (
+              <Card>
+                <CardContent className="p-6">
+                  <p className="text-sm text-muted-foreground">
+                    Try scanning a clearer tomato leaf image with good lighting.
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-semibold flex items-center gap-2 text-card-foreground">
+                      <AlertTriangle className="h-4 w-4 text-accent" />
+                      Cause
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{cause}</p>
+                  </CardContent>
+                </Card>
 
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-semibold flex items-center gap-2 text-card-foreground">
-                  <Pill className="h-4 w-4 text-chart-3" />
-                  Prescriptions
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="flex flex-col gap-2">
-                  {result.prescriptions.map((item, index) => (
-                    <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-chart-3 mt-1.5 shrink-0" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-semibold flex items-center gap-2 text-card-foreground">
+                      <Pill className="h-4 w-4 text-chart-3" />
+                      Prescriptions
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="flex flex-col gap-2">
+                      {prescriptions.map((item, index) => (
+                        <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
+                          <span className="h-1.5 w-1.5 rounded-full bg-chart-3 mt-1.5 shrink-0" />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </>
+            )}
           </div>
         </>
       )}

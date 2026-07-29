@@ -2,11 +2,13 @@ export type ExpertDashboardSummary = {
     total_farmers: number
     total_posts: number
     total_comments: number
+    total_scans: number
 }
 
 export type FarmerDashboardSummmary = {
     total_posts: number
     total_comments: number
+    total_scans: number
 }
 
 export type FarmerDashboardSummary = FarmerDashboardSummmary
