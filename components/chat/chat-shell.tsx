@@ -76,6 +76,7 @@ export function ChatShell({ heading, description, receiverUserId, basePath }: Ch
     queryKey: ["chat", "receiver", receiverUserId],
     queryFn: () => fetchChatReceiver(receiverUserId),
     enabled: Boolean(receiverUserId),
+    refetchInterval: 5_000,
     retry: false,
   })
 
@@ -96,6 +97,7 @@ export function ChatShell({ heading, description, receiverUserId, basePath }: Ch
     return null
   }, [conversations, experts, fetchedReceiver, receiverUserId])
 
+  const receiverOnline = selectedReceiver?.online === true
   const {
     data,
     isLoading: isMessagesLoading,
@@ -217,17 +219,15 @@ export function ChatShell({ heading, description, receiverUserId, basePath }: Ch
                     <div className="min-w-0">
                       <h2 className="font-semibold text-card-foreground line-clamp-1">{selectedReceiver.username}</h2>
                       <p className="text-xs text-muted-foreground line-clamp-1">
-                        {selectedReceiver.online ? "Online" : selectedReceiver.email ?? selectedReceiver.role ?? "Chat participant"}
+                        {receiverOnline ? "Online" : selectedReceiver.email ?? selectedReceiver.role ?? "Chat participant"}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <Badge variant={socketState === "connected" ? "default" : "outline"}>
-                      {socketState === "connected" ? (
-                        <span className="flex items-center gap-1"><Wifi className="h-3 w-3" /> Live</span>
-                      ) : socketState === "connecting" ? (
-                        <span className="flex items-center gap-1"><Spinner className="h-3 w-3" /> Connecting</span>
+                    <Badge variant={receiverOnline ? "default" : "outline"}>
+                      {receiverOnline ? (
+                        <span className="flex items-center gap-1"><Wifi className="h-3 w-3" /> Online</span>
                       ) : (
                         <span className="flex items-center gap-1"><WifiOff className="h-3 w-3" /> Offline</span>
                       )}

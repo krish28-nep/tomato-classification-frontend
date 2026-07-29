@@ -2,8 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { FileText, MessageCircle, Calendar, Mail, Edit } from "lucide-react"
+import { FileText, MessageCircle, Calendar, Mail, Microscope } from "lucide-react"
 import { UserBadge } from "@/components/user-badge"
 import { useAuth } from "@/hooks/useAuth"
 import { useQuery } from "@tanstack/react-query"
@@ -66,7 +65,7 @@ export default function ExpertProfilePage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-5 flex items-center gap-4">
             <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -86,6 +85,17 @@ export default function ExpertProfilePage() {
             <div>
               <p className="text-2xl font-bold text-card-foreground">{dashboardSummary?.total_comments ?? 0}</p>
               <p className="text-xs text-muted-foreground">Comments Made</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-5 flex items-center gap-4">
+            <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Microscope className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-card-foreground">{dashboardSummary?.total_scans ?? 0}</p>
+              <p className="text-xs text-muted-foreground">Disease Scans</p>
             </div>
           </CardContent>
         </Card>
