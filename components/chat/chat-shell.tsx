@@ -184,20 +184,24 @@ export function ChatShell({ heading, description, receiverUserId, basePath }: Ch
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <div>
+    <div className="flex h-[calc(100dvh-10rem)] min-h-0 w-full flex-col gap-6 overflow-hidden lg:h-[calc(100dvh-7rem)]">
+      <div className="shrink-0">
         <h1 className="text-2xl font-bold text-foreground font-heading">{heading}</h1>
         <p className="text-muted-foreground text-sm mt-1">{description}</p>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[390px_minmax(0,1fr)]">
-        <div className="hidden lg:block">
-          <ChatSidebar basePath={basePath} activeReceiverUserId={receiverUserId} />
+      <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[390px_minmax(0,1fr)]">
+        <div className="hidden min-h-0 lg:block">
+          <ChatSidebar
+            basePath={basePath}
+            activeReceiverUserId={receiverUserId}
+            className="h-full min-h-0"
+          />
         </div>
 
-        <Card className="flex min-h-[720px] overflow-hidden rounded-2xl border-border/60">
-          <div className="flex min-w-0 flex-1 flex-col">
-            <header className="flex items-center justify-between gap-3 border-b border-border/60 bg-card px-4 py-3">
+        <Card className="flex min-h-0 overflow-hidden rounded-2xl border-border/60">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+            <header className="flex shrink-0 items-center justify-between gap-3 border-b border-border/60 bg-card px-4 py-3">
               {isReceiverLoading ? (
                 <div className="flex items-center gap-3">
                   <Spinner className="h-5 w-5" />
@@ -241,7 +245,7 @@ export function ChatShell({ heading, description, receiverUserId, basePath }: Ch
             </header>
 
             <div className="flex min-h-0 flex-1 flex-col bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.08),transparent_30%),linear-gradient(135deg,hsl(var(--muted)/0.45),hsl(var(--background)))]">
-              <div className="flex items-center justify-center px-4 py-3">
+              <div className="flex shrink-0 items-center justify-center px-4 py-3">
                 <Button
                   type="button"
                   variant="outline"
@@ -330,7 +334,7 @@ export function ChatShell({ heading, description, receiverUserId, basePath }: Ch
                 )}
               </ScrollArea>
 
-              <form onSubmit={handleSend} className="border-t border-border/60 bg-card px-4 py-3">
+              <form onSubmit={handleSend} className="shrink-0 border-t border-border/60 bg-card px-4 py-3">
                 <div className="flex items-end gap-3">
                   <Textarea
                     value={draft}

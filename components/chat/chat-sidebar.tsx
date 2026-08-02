@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils"
 type ChatSidebarProps = {
   basePath: string
   activeReceiverUserId?: number
+  className?: string
 }
 
 function formatPreviewTime(timestamp?: string) {
@@ -88,7 +89,7 @@ function ChatSidebarItem({
   )
 }
 
-export function ChatSidebar({ basePath, activeReceiverUserId }: ChatSidebarProps) {
+export function ChatSidebar({ basePath, activeReceiverUserId, className }: ChatSidebarProps) {
   const { user } = useAuth()
   const { on } = useSocket()
   const queryClient = useQueryClient()
@@ -214,7 +215,12 @@ export function ChatSidebar({ basePath, activeReceiverUserId }: ChatSidebarProps
   }
 
   return (
-    <aside className="flex min-h-[720px] flex-col overflow-hidden rounded-2xl border border-border/60 bg-card">
+    <aside
+      className={cn(
+        "flex min-h-[720px] flex-col overflow-hidden rounded-2xl border border-border/60 bg-card",
+        className
+      )}
+    >
       <div className="border-b border-border/60 p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
